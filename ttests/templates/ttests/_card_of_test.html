@@ -1,0 +1,23 @@
+<div class="card text-center mb-5">
+	{% if test.img_description %}
+	<img src="{{ test.img_description.url }}" class="card-img-top" alt="<картинка-описание для теста>" style="max-height: 300px">
+	{% endif %}
+	<div class="card-header">
+		<h5 class="card-title">{{ test.title }} </h5>
+	</div>
+	<div class="card-body">
+		<p class="card-text text-left">{{ test.description|truncatewords:90 }}</p>
+		<a href="{{ test.get_absolute_url }}" class="btn btn-primary">Подробнее</a>
+	</div>
+	<div class="card-footer text-muted">
+	{% if test.tags.first %}
+		<h5>Для этого теста представлены <span class="badge badge-secondary">теги:</span></h5>
+		{% for tag in test.tags.all %}
+			<a class="btn btn-outline-info btn-sm"
+				href="{{ tag.get_absolute_url }}">{{ tag.title }}</a>
+		{% endfor %}
+		{% else %}
+			<h5>Для этого теста нет <span class="badge badge-secondary">тегов</span></h5>
+	{% endif %}
+	</div>
+</div>

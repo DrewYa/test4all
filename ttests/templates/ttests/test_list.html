@@ -1,0 +1,13 @@
+{% extends 'ttests/base.html' %}
+
+{% block title %}
+  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+	{% for test in test_list %}
+		{% include 'ttests/_card_of_test.html' %}
+	{% endfor %}
+
+{% endblock %}

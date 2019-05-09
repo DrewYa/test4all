@@ -1,0 +1,10 @@
+{% extends 'ttests/base.html' %}
+
+{% block content %}
+	{% for tag in tag_list %}
+	<a class="btn btn-primary mb-4" href="{{ tag.get_absolute_url }}">{{ tag.title }}
+		<span class="badge badge-light">{{ tag.tests.count }}</span>
+	</a>
+	<br>
+	{% endfor %}
+{% endblock %}

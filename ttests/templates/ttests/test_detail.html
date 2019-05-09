@@ -1,0 +1,42 @@
+{% extends 'ttests/base.html' %}
+
+{% block content %}
+	{# {% include 'ttests/_card_of_test.html' %}  #}
+
+
+	<div class="card" style="width: auto;">
+
+	  {% if test.img_description %}
+  	<img src="{{ test.img_description.url }}" class="card-img-top" alt="<картинка-описание для теста>" style="max-height: 300px">
+  	{% endif %}
+
+	  <div class="card-body">
+	    <h5 class="card-title">{{ test.title }}</h5>
+	    <p class="card-text">{{ test.description }}</p>
+	  </div>
+	  <ul class="list-group list-group-flush">
+	    <li class="list-group-item">Автор теста: {{ test.author }}</li>
+	    <li class="list-group-item">Время для решения теста - {{ test.testing_time }}</li>
+		{% if test.show_q_number %}
+	    <li class="list-group-item">количество вопросов для решения - {{ test.show_q_number }}</li>
+		{% else %}
+	    <li class="list-group-item">количество вопросов для решения - {{ test.questions.cont }}</li>
+		{% endif %}
+		{% if test.only_fully_correct %}
+	    <li class="list-group-item">Внимание, засчитываются только 100% правильные ответы на вопросы</li>
+		{% endif %}
+	    <li class="list-group-item">дата публикации теста - {{ test.update_date }}</li>
+
+	    <li class="list-group-item">Теги теста {% for tag in test.tags.all %}
+			<span class="badge badge-secondary">{{ tag }}</span>
+			{% endfor %}
+		</li>
+
+	  </ul>
+	  <div class="card-body">
+	    <a href="#" class="card-link btn btn-outline-primary">Пройти тест</a>
+	    <!-- <a href="#" class="card-link">Another link</a> -->
+	  </div>
+	</div>
+
+{% endblock %}
