@@ -11,3 +11,19 @@
 	{% endfor %}
 
 {% endblock %}
+
+
+
+{% comment %}
+
+Если у теста нет вопросов - не показывать его в списке тестов:
+{% for test in test_list %}
+	{% if test.questions.count != 0 %}
+		{% include 'ttests/_card_of_test.html' %}
+	{% endif %}
+{% endfor %}
+
+Если тест не опубликован - не показывать его в списке тестов, а также
+запретить его просматривать, если ввести напрямую его id-шник в строке url
+
+{% endcomment %}
