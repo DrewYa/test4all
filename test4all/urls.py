@@ -28,3 +28,37 @@ from . import settings
 from django.conf.urls.static import static
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# а так можно реализовать собственные вьюшки для обработки ошибок
+# 404, 500, 403 и др.
+# (осторожно, устарело) https://evileg.com/ru/post/9/
+# в своем приложении пишем вьюшки для обработки, например:
+# def e_handler404(request):
+# 	context = RequestContext(request)
+# 	response = render_to_response('error404.html', context)
+# 	response.status_code = 404
+# 	return response
+#
+# def e_handler500(request):
+# 	context = RequestContext(request)
+# 	response = render_to_response('error500.html', context)
+# 	response.status_code = 500
+# 	return response
+
+#   и импортируем их сюда
+# from ttests.views import e_handler_404, e_handler_500
+# handler_404 = e_handler_404
+# handler_500 = e_handler_500
+
+# есть способ попроще:
+# просто создаем файл для соотствующего кода ошибки в формате:
+# <код>.html  (например 404.html)
+# и кидаем его в папку templates в ее корень
+# а во вьюшке где нужно вызвать соотв. ошибку пишем конструкцию:
+# from django.http import Http404
+# ...
+# try:
+# 	код, который может вызывать ошибку
+# except:
+# 	Http404

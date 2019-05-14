@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+
+
+	<!-- ассоциативные ответы -->
+	<form class="" action="" method="post">
+		{% csrf_token %}
+		<p>
+			<input list="variables" name="usr_a_answer1" value="" size="3">
+			<span>а здесь текст для правой части. сопоставление № 1. ыдоаж ыова
+			ыоа ывао ыждоа ыжвоа  оывао ыждао  ыоа лоыжд  ыдво ажыд ыова ждоы
+			воыа о ыоваждо ыо ыоа ждвыоа оыжвоа ывл оы ожва ыжао</span>
+		</p>
+		<p>
+			<input list="variables" name="usr_a_answer2" value="" size="3">
+			<span>здесь текст правой части для сопоставления № 2. оывао ывжао
+			ывжо ыж ыжва оыао ыавождыао офжаоцрацаывар цзарцваоыар
+			запрдваарпжап</span>
+		</p>
+		<p>
+			<input list="variables" name="usr_a_answer2" value="" size="3">
+			<span>еще текст</span>
+		</p>
+		<!-- <input list="variables" name="usr_a_answer" value=""> -->
+		<datalist class=""	id="variables">
+			<option value="1variant"> 1 variant</option>
+			<option value="2variant"> 2 variant</option>
+			<option value="3variant"> 3 variant</option>
+			<!-- <option value="id4"> id 4</option> -->
+		</datalist>
+
+		<input type="submit" name="" value="отправить">
+	</form>
+
+	<p>[1 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №1</p>
+	<p>[2 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №2</p>
+	<p>[3 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №3</p>
+
+
+
+	<!-- множественный ответ -->
+		<form class="" method="post">
+			{% csrf_token %}
+			<!-- <p><input type="checkbox" name="usr_answer" checked value="{{ answer.id }}"> {{ answer.text }}</p> -->
+			<p><input type="checkbox" name="usr_m_answer" value="10" disabled> текст 10</p>
+			<p><input type="checkbox" name="usr_m_answer" value="11"> текст 11</p>
+			<p><input type="checkbox" name="usr_m_answer" value="12"> текст 12</p>
+
+			<p>
+			<input type="submit" value="Отправить">
+			<input type="reset" value="Очистить">
+			</p>
+		</form>
+
+
+		<!-- одиночные кавычки экранируются -->
+		<form class="" method="post" >
+			{% csrf_token %}
+			<p>введи что-нибудь
+			<input type="text" name="usr_o_answer" value="тек по умолч." size="80"
+					maxlength="10">
+			</p>
+
+			<p>
+			<input type="submit" value="Отправить">
+			<input type="reset" value="Очистить">
+			</p>
+		</form>
+
+
+
+	<!-- в объекте request.POST это выглядит как 'usr_answer': ['firefox'] -->
+	<form class="" method="post" >
+		<p>
+		 {% csrf_token %}
+		<input type="radio" name="usr_answer" value="mozila"> mozila_ <Br>
+		<input type="radio" name="usr_answer" value="opera"> opera_<Br>
+		<input type="radio" name="usr_answer" value="firefox"> firefox_<Br>
+		</p>
+		<p>
+		<input type="submit" value="Отправить">
+		<input type="reset" value="Очистить">
+		</p>
+	</form>
+
+
+
+	<!-- пробую -->
+	<!-- <form class="" action="" method="post">
+		{% csrf_token %}
+		<input type="image" src="/media/user_3/1-2683-2-1000x1000.jpg">
+		<input type="submit" name="" value="отпр">
+	</form> -->
+
+	</body>
+</html>

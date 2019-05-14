@@ -1,0 +1,12 @@
+<form class="" method="post">
+	{% csrf_token %}
+	{% for answer in answers %}
+	<!-- <p><input type="checkbox" name="usr_answer" checked value="{{ answer.id }}"> {{ answer.text }}</p> -->
+	<p><input type="checkbox" name="usr_m_answer" value="{{ answer.id }}"> {{ answer.text }}</p>
+	{% endfor %}
+
+	<p>
+	<input type="submit" value="Отправить">
+	<input type="reset" value="Очистить">
+	</p>
+</form>

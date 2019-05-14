@@ -1,8 +1,10 @@
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import reverse
 import os
 
 # Create your models here.
+# from django.db.signals
 
 class User(models.Model):											## del model
 	class Meta:
@@ -24,10 +26,14 @@ class TestTag(models.Model):
 		managed = True # позволяет django удалять таблицу из БД
 
 	title = models.CharField(max_length=50, blank=True, unique=True)
-	slug = models.SlugField(max_length=50, unique=True)
+	slug = models.SlugField(max_length=50, unique=True,
+					verbose_name='ссылка')
 
 	def get_absolute_url(self):
 		return reverse('ttests:test_by_tag_url', kwargs={'slug': self.slug})
+
+	def count_published_test(self):
+		return self.tests.filter(is_published=True).count()
 
 	def __str__(self):
 		return self.title
@@ -85,6 +91,12 @@ class Test(models.Model):
 	def get_absolute_url(self):
 		return reverse('ttests:test_detail_url', kwargs={'id': self.id})
 
+	def count_q_to_answer(self):
+		if self.show_q_number and \
+		 		self.show_q_number <= self.questions.count():
+			return self.show_q_number
+		return self.questions.count()
+
 	def __str__(self):
 		if len(self.title) < 70:
 			return self.title
@@ -128,6 +140,19 @@ class Question(models.Model):
 	point = models.PositiveSmallIntegerField(default=1,
 							verbose_name='балл за верный ответ')
 	explanation = models.TextField(blank=True, max_length=1000)
+
+	def count_answers(self):
+		return self.answers.count()
+
+	def count_is_right_answers(self):
+		return self.answers.filter(is_right=True).count()
+
+	def count_associate_answers(self):
+		return self.associate_answers.count()
+
+	# ###
+	def get_absolute_url(self):
+		return reverse('ttests:testing_url', kwargs={'question_id': self.id})
 
 	def __str__(self):
 		if len(self.text) < 70:

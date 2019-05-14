@@ -15,6 +15,15 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# # получили абсолютный путь до этого файла (settings.py)
+# BASE_DIR = os.path.abspath(__file__)
+# # получили абс. путь до папки, в которой лежит settings.py
+# # т.е. абс. путь до данного базового приложения
+# os.path.dirname(BASE_DIR)
+# # получили путь до папки, где лежит это базовое приложение
+# # т.е. до папки проекта
+# BASE_DIR = os.path.dirname(BASE_DIR)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -23,9 +32,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '1bhs-4d$tbu8d%i%un%ht@r!r6mb#l(b=!coowbvo_pt5&3p%!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True # False
+DEBUG = True # False # True
 
-ALLOWED_HOSTS = [] # ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] # []
 
 
 # Application definition
@@ -55,7 +64,7 @@ ROOT_URLCONF = 'test4all.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ os.path.join(BASE_DIR, 'templates') ], # [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,6 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # для отобрж. загружаемых картинок в продакшне (не было)
+                # 'django.template.context_processors.media',
             ],
         },
     },
@@ -101,6 +112,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # AUTH_USER_MODEL = 'core.MyUserModel'
+# AUTH_USER_MODEL = 'auth.User'   # по умолчанию
+
+# сейчас так:
+# CSRF_COOKIE_AGE	= 31449600
+# CSRF_COOKIE_DOMAIN = None
+# CSRF_COOKIE_HTTPONLY = False
+# CSRF_COOKIE_NAME = 'csrftoken'
+# CSRF_COOKIE_PATH = '/'
+# CSRF_COOKIE_SAMESITE = 'Lax'
+# CSRF_COOKIE_SECURE = False
+# CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+# CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+# CSRF_TRUSTED_ORIGINS = []
+# CSRF_USE_SESSIONS = False
 
 
 # Internationalization
@@ -120,7 +145,44 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+# для файлов статики:
 STATIC_URL = '/static/'
+# STATIC_ROOT = BASE_DIR + '/static/'
 
+# т.к. static_root я не устанавливал, здесь это значение равно None
+# STATICFILES_DIRS = []
+# STATICFILES_FINDERS = ['django.contrib.staticfiles.finders.FileSystemFinder', 'django.contrib.staticfiles.finders.AppDirectoriesFinder']
+# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# STATIC_ROOT = None
+# STATIC_URL = '/static/'
+
+
+# для загружаемых файлов
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/' ###
+# для отображения загружаемых картинок в продакшне
+# MEDIA_DIR = MEDIA_ROOT   # media_dir видимо больше не практикуется
+
+# видимо это касается загрузки файлов на сервер
+# DATA_UPLOAD_MAX_MEMORY_SIZE	= 2621440
+# DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+
+# DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
+# настройки для "сессий"
+# SESSION_CACHE_ALIAS	= 'default'
+# SESSION_COOKIE_AGE = 1209600
+# SESSION_COOKIE_DOMAIN = None
+# SESSION_COOKIE_HTTPONLY = True # запрещаем js доступ к кукам
+# SESSION_COOKIE_NAME	= 'sessionid'
+# SESSION_COOKIE_PATH	= '/'
+# SESSION_COOKIE_SAMESITE	= 'Lax'
+# SESSION_COOKIE_SECURE = False
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_EXPIRE_AT_BROWSER_CLOSE	= False
+# SESSION_FILE_PATH = None
+# SESSION_SAVE_EVERY_REQUEST = False
+# SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

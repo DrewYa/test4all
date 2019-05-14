@@ -13,16 +13,17 @@
 	</div>
 	<div class="card-footer text-muted">
 	{% if test.tags.first %}
-		<h5>Для этого теста представлены <span class="badge badge-secondary">теги:</span></h5>
+		<h5>Для этого теста определены <span class="badge badge-secondary">теги:</span></h5>
 		{% for tag in test.tags.all %}
-			<a class="btn btn-outline-info btn-sm"
+			<a class="btn btn-outline-info btn-sm mb-1"
 				href="{{ tag.get_absolute_url }}">{{ tag.title }}</a>
 		{% endfor %}
 		{% else %}
 			<h5>Для этого теста нет <span class="badge badge-secondary">тегов</span></h5>
 	{% endif %}
 	</div>
-	<!-- <div class="card-footer text-muted">
-		<h6>еще какое-то описание, нарпремер время прохождения</h6>
-	</div> -->
+{% comment %}
+	<div class="card-footer text-muted">
+		<h6>{{ test.id }}{{ test.is_published }}</h6>
+	</div>{% endcomment %}
 </div>

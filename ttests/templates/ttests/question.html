@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="utf-8">
+		<title>{% if title %}{{ title }}{% endif %}</title>
+	</head>
+	<body>
+		<h1>тестирование...</h1>
+		<p>{{ q.text }}</p>
+		{% if q.mediafile %}
+		  <img height="300" src="{{ q.mediafile.url }}" alt="<картинка вопроса>">
+		{% endif %}
+
+
+		{% if answers %}
+			{% if answers.count == 1 %}
+				<!-- вопрос с самостоятельным ответом -->
+				{% include 'ttests/_own_answer.html' %}
+			{% else %}
+				{% if q.count_is_right_answers == 1 %}
+				<!-- вопрос с одиноч. ответом -->
+					{% include 'ttests/_single_answer.html' %}
+				{% else %}
+				<!-- вопрос с множественным ответом -->
+					{% include 'ttests/_multiple_answer.html' %}
+				{% endif %}
+			{% endif %}
+		{% elif associate_answers %}
+			<!-- форма с овтетами для сопоставления -->
+			{% include 'ttests/_associative_answer.html' %}
+		{% else %}
+			<!-- если нет ни обычных, ни ассоц. ответов -->
+			<p>Для этого вопроса нет вариантов ответа О_о</p>
+		{% endif %}
+
+	</body>
+</html>
+
+<!-- чтобы отключить возможность изменять значение поля, нужно в
+тег Input добавить атрибут disabled
+Однако, если клиент залезет в "инспектор" браузера и удалит этот
+атрибут, а затем введет что-либо в поле, то сервер его обработает
+без проблем. Поэтому валидацию нужно проводить на уровне сервера -->

@@ -1,0 +1,15 @@
+<form class="" method="post" >
+	{% csrf_token %}
+	<!-- обращаться к полю формы по значению атрибута name -->
+	<!-- будут вытащены значения из атрибута value -->
+	<p>
+	{% for answer in answers %}
+	<input type="radio" name="usr_s_answer" value="{{ answer.id }}"> {{ answer.text }}<Br>
+	{% endfor %}
+	</p>
+
+	<p>
+	<input type="submit" value="Отправить">
+	<input type="reset" value="Очистить">
+	</p>
+</form>

@@ -1,0 +1,62 @@
+{% load staticfiles %}
+<a href="http://vk.com/share.php?url=https://MYSITE.ru/{{ test.get_absolute_url }}"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/vk.png' %}">
+</a>
+
+<a href="https://twitter.com/share?url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/twitter.png' %}">
+</a>
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/facebook.png' %}">
+</a>
+<a href="https://plus.google.com/share?url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/google-plus.png' %}">
+</a>
+<a href="https://www.linkedin.com/shareArticle?mini=true&url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/linkedin.png' %}">
+</a>
+
+{% comment %}
+позволяет поделиться в соцсетях
+https://evileg.com/ru/post/11/
+изображения кнопок - статические файлы, которые заключены
+в ссылку, т.е. при нажатии на картинку всплывет окно
+"поделиться в <some soc. net.>"
+
+
+
+или вот вариант, где окно "поделиться" будет открываться в
+отдельном окне браузера
+{% endcomment %}
+
+{% load staticfiles %}
+<a href="http://vk.com/share.php?url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/vk.png' %}">
+</a>
+<a href="https://twitter.com/share?url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/twitter.png' %}">
+</a>
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/facebook.png' %}">
+</a>
+<a href="https://plus.google.com/share?url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/google-plus.png' %}">
+</a>
+<a href="https://www.linkedin.com/shareArticle?mini=true&url=https://evileg.com/ru/{{ article.get_absolute_url }}"
+   onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+   target="_blank" rel="nofollow">
+    <img src="{% static 'images/social/linkedin.png' %}">
+</a>

@@ -30,7 +30,7 @@
 		{% if test.show_q_number %}
 	    <li class="list-group-item">количество вопросов для решения: {{ test.show_q_number }}</li>
 		{% else %}
-	    <li class="list-group-item">количество вопросов для решения: {{ test.questions.cont }}</li>
+	    <li class="list-group-item">количество вопросов для решения: {{ test.count_q_to_answer }}</li>
 		{% endif %}
 
 		{% if test.only_fully_correct %}
@@ -57,3 +57,12 @@
 	</div>
 
 {% endblock %}
+
+
+{% comment %}
+так можно сделать цветную полоску (типа как цитата)
+https://webref.ru/css/border-left
+<div style="border-left: 3px solid red;">
+	<p class="p-3">sdfjsdl</p>
+</div>
+{% endcomment %}

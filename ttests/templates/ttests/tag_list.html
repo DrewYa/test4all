@@ -2,9 +2,12 @@
 
 {% block content %}
 	{% for tag in tag_list %}
-	<a class="btn btn-primary mb-4" href="{{ tag.get_absolute_url }}">{{ tag.title }}
-		<span class="badge badge-light">{{ tag.tests.count }}</span>
-	</a>
-	<br>
+		{% if tag.count_published_test != 0 %}
+		<a class="btn btn-primary mb-4" href="{{ tag.get_absolute_url }}">
+			{{ tag.title }}
+			<span class="badge badge-light ml-2">{{ tag.count_published_test }}</span>
+		</a>
+		<br>
+		{% endif %}
 	{% endfor %}
 {% endblock %}
