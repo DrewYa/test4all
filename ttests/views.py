@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404, get_list_or_404
 
-# from django.urls import reverse
+from django.urls import reverse
 
 from .models import Test, TestTag, Question
 
 # from django.http import Http404
-from django.db.models import Q
+from django.db.models import Q, Count
 # from django.db.models import F
 
 from test4all.settings import SECRET_KEY ###
@@ -16,6 +16,8 @@ from django.views.generic import View
 from datetime import datetime, timedelta
 from django.core import signing
 
+# import json
+import random
 # Create your views here.
 
 '''
@@ -27,9 +29,13 @@ tag_list_url
 
 class TestList(View):
 	def get(self, request):  ### test_list(request):
-		# if request.method
 		# test_list = Test.objects.order_by('title')[:20]
+		# только опубликованные тесты
 		test_list = Test.objects.filter(is_published=True).order_by('title')[:20]
+		# только опубликованные тесты, у которых есть хотя бы 1 вопрос
+		# test_list = Test.objects.annotate(Count('questions'))
+		# test_list = test_list.filter( Q(questions__count__gte=1) &
+		# 								Q(is_published=True) )
 		context = {
 			'test_list' : test_list,
 			'title' : 'Тесты',
@@ -46,30 +52,90 @@ class TestList(View):
 		}
 		return render(request, 'ttests/test_list.html', context)
 
+class TestDetail(View):
+	def get(self, request, id): # test_detail
+		test = get_object_or_404(Test, Q(id=id) & Q(is_published=True) )
+		# ### сюда бы тоже добавить фильтраци чтобы показывать только тесты,
+		# у которых больше 1 вопроса
 
-def test_detail(request, id):
-	test = get_object_or_404(Test, Q(id=id) & Q(is_published=True) )
+		# # #########
+		# print('\n\ncookies: ', request.COOKIES, '\n\n')
+		# sec_val = request.get_signed_cookie(key='sec_tsting', default=None )
+		# val = signing.loads(sec_val, key='secret key', salt='some salt')
+		# print('sec val from cookie: ', val, '\n\n')
+		# # ########
+		# sec_val = request.COOKIES.get('sec_testing2', None)
+		# val = signing.loads(sec_val, key='secret key', salt='some salt')
+		# print('значение из шифрованных, подписанных кук:\n', val)
+		# # #######
 
-	# #########
-	print('\n\ncookies: ', request.COOKIES, '\n\n')
-	sec_val = request.get_signed_cookie(key='sec_tsting', default=None )
-	val = signing.loads(sec_val, key='secret key', salt='some salt')
-	print('sec val from cookie: ', val, '\n\n')
-	# ########
-	sec_val = request.COOKIES.get('sec_testing2', None)
-	val = signing.loads(sec_val, key='secret key', salt='some salt')
-	print('значение из шифрованных, подписанных кук:\n', val)
-	# #######
+		context = {
+		'test': test,
+		'title': 'Детальное описание теста'
+		}
+		return render(request, 'ttests/test_detail.html', context)
 
-	context = {
-	'test': test,
-	'title': 'Детальное описание теста'
-	}
-	return render(request, 'ttests/test_detail.html', context)
+
+	def post(self, request, id):
+		# --------- правильная часть -----------
+		test = Test.objects.get(id=id)
+		list_questions_id = test.get_all_q_id()
+
+		if not list_questions_id: ###
+			return redirect(test)
+			# добавить вывод сообщения о том, что нет вопросов
+			# или вообще не покаывазть этот тест для прохождения (запретить)
+
+		if test.is_shuffle_q:	# перемешиваем вопросы
+			random.shuffle(list_questions_id)
+		# выставляем кол-во вопросов тестируемому
+		show_q_number = test.show_q_number
+		if show_q_number and show_q_number < len(list_questions_id):
+			list_questions_id = list_questions_id[:show_q_number]
+
+		next_q = Question.objects.get(id=list_questions_id[0])
+		response = redirect(next_q)
+		# --------------------------------------
+
+		# # response.set_cookie(key='testing_q', value=list_questions_id) #path=..
+		# dict_q_id = {}
+		# for i in range(len(list_questions_id)):
+		# 	dict_q_id[i] = list_questions_id[i] # хоть так dict_q_id[str(i)] = ...
+		#
+		# # response.set_signed_cookie(key='testing_q', value=l_q_id,
+		# # 							path='/') #### /<test_id>/testing/
+		#
+		# d = signing.dumps(dict_q_id, key='secret key')
+		# response.set_cookie(key='testing_q', value=d)
+		#
+		# return response
+
+		# проба ---
+		l = signing.dumps(list_questions_id, key='secret key')
+		response.set_cookie(key='testing_q', value=l)
+		return response
+
+
+		# dict_question_id = request.get_signed_cookie('testing_q', default=None)
+		# print('dict of q:   ', dict_question_id)
+		# print('type:   ', type(dict_question_id))
+		#
+		# dict_question_id = json.loads(dict_question_id)
+		# print('dict of q:   ', dict_question_id)
+		# print('type:   ', type(dict_question_id))
+		#
+		# if not dict_question_id:
+		# 	return redirect(reverse('test_detail_url'))
+		# next_q = dict_question_id['0']
+		# return redirect(int(next_q))
+
 
 
 def tag_list(request):
 	tag_list = TestTag.objects.order_by('title')[:]
+	# ### сюда бы тоже добавить фильтраци чтобы показывать только тесты,
+	# у которых больше 1 вопроса
+
 	context = {
 		'tag_list': tag_list,
 		'title': 'Тэги',
@@ -103,6 +169,8 @@ class AnswerTheQuestion(View):					# testing_url
 			'title': 'тестирование...'
 		}
 
+		print(request.COOKIES)
+
 		# last = request.COOKIE.get('testing', None)
 		# if not last:
 		# 	last = {}
@@ -119,13 +187,35 @@ class AnswerTheQuestion(View):					# testing_url
 		a_u_s_text = request.POST.get('usr_s_answer') # одиночный
 		a_u_m_ids = request.POST.getlist('usr_m_answer') # множественный
 
-		# self.get(request=request, question_id=question_id+1)
 
-		next_q = Question.objects.get(id=question_id+1) ## много ошибок тут...
-		return redirect(next_q)
+		print(request.COOKIES)
+		val = request.COOKIES.get('testing_q')
+		print('val:  ', val, type(val))
+		list_q_id = signing.loads(val, key='secret key')
 
-		# response = render(request, 'ttests/question.html')
-		# return response
+
+		cur_val_index = list_q_id.index(question_id)
+
+		if cur_val_index < len(list_q_id) - 1:
+			next_q = list_q_id[cur_val_index + 1]
+		else:
+			# переход на страницу завершения теста
+			return redirect(reverse('ttests:finish_testing_url'))
+			# next_q = list_q_id[cur_val_index]
+		print('next q:   ', next_q)
+
+
+		# записываем ответ польозвателя ...
+
+		return redirect(reverse('ttests:testing_url', kwargs={'question_id': next_q} )) ###
+
+def finish_testing(request):
+	context = {
+
+	}	# результаты
+
+	return render(request, 'ttests/finish_testing.html', context)
+
 
 # ================================
 # вьюшка созданная с помощью форм

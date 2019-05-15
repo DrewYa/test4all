@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="ru">
-	<head>
-		<meta charset="utf-8">
-		<title>{% if title %}{{ title }}{% endif %}</title>
-	</head>
-	<body>
-		<h1>тестирование...</h1>
-		<p>{{ q.text }}</p>
-		{% if q.mediafile %}
-		  <img height="300" src="{{ q.mediafile.url }}" alt="<картинка вопроса>">
-		{% endif %}
+{% extends 'ttests/base_testing.html' %}
 
+{% block content %}
+<div class="card mb-5">
+	<div class="card-header text-center">
+		<h5 class="card-title mt-3 text-uppercase">{{ q.text }} </h5>
+		{% if q.mediafile %}
+		<img src="{{ q.mediafile.url }}" class="card-img-top img-fluid" alt="<картинка вопроса>" style="height: auto; max-height: 400px; width: auto;">
+		{% endif %}
+	</div>
+	<div class="card-body">
 
 		{% if answers %}
 			{% if answers.count == 1 %}
@@ -33,8 +31,10 @@
 			<p>Для этого вопроса нет вариантов ответа О_о</p>
 		{% endif %}
 
-	</body>
-</html>
+	</div>
+</div>
+
+{% endblock %}
 
 <!-- чтобы отключить возможность изменять значение поля, нужно в
 тег Input добавить атрибут disabled

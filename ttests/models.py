@@ -97,6 +97,10 @@ class Test(models.Model):
 			return self.show_q_number
 		return self.questions.count()
 
+	def get_all_q_id(self):
+		dict_val = self.questions.values('id')
+		return [ item['id'] for item in dict_val ]
+
 	def __str__(self):
 		if len(self.title) < 70:
 			return self.title
