@@ -53,21 +53,13 @@ class TestList(View):
 		return render(request, 'ttests/test_list.html', context)
 
 class TestDetail(View):
-	def get(self, request, id): # test_detail
+	def get(self, request, id):
 		test = get_object_or_404(Test, Q(id=id) & Q(is_published=True) )
 		# ### сюда бы тоже добавить фильтраци чтобы показывать только тесты,
 		# у которых больше 1 вопроса
 
-		# # #########
-		# print('\n\ncookies: ', request.COOKIES, '\n\n')
-		# sec_val = request.get_signed_cookie(key='sec_tsting', default=None )
-		# val = signing.loads(sec_val, key='secret key', salt='some salt')
-		# print('sec val from cookie: ', val, '\n\n')
-		# # ########
-		# sec_val = request.COOKIES.get('sec_testing2', None)
-		# val = signing.loads(sec_val, key='secret key', salt='some salt')
-		# print('значение из шифрованных, подписанных кук:\n', val)
-		# # #######
+		# добавить кнопку "показать результаты" последнего тестирования, если
+		# пользователь уже проходил этот тест
 
 		context = {
 		'test': test,
@@ -77,7 +69,6 @@ class TestDetail(View):
 
 
 	def post(self, request, id):
-		# --------- правильная часть -----------
 		test = Test.objects.get(id=id)
 		list_questions_id = test.get_all_q_id()
 
@@ -110,25 +101,13 @@ class TestDetail(View):
 		#
 		# return response
 
-		# проба ---
+		# работает ---
 		l = signing.dumps(list_questions_id, key='secret key')
 		response.set_cookie(key='testing_q', value=l)
 		return response
 
-
-		# dict_question_id = request.get_signed_cookie('testing_q', default=None)
-		# print('dict of q:   ', dict_question_id)
-		# print('type:   ', type(dict_question_id))
-		#
-		# dict_question_id = json.loads(dict_question_id)
-		# print('dict of q:   ', dict_question_id)
-		# print('type:   ', type(dict_question_id))
-		#
-		# if not dict_question_id:
-		# 	return redirect(reverse('test_detail_url'))
-		# next_q = dict_question_id['0']
-		# return redirect(int(next_q))
-
+		# проба ----
+		...
 
 
 def tag_list(request):
@@ -142,7 +121,7 @@ def tag_list(request):
 	}
 	return render(request, 'ttests/tag_list.html', context)
 
-def test_by_tag(request, slug): # v
+def test_by_tag(request, slug):
 	# test_list = TestTag.tests.filter(test__iexact=tag_title)
 	test_list = Test.objects.filter( Q(tags__slug=slug) & Q(is_published=True) )
 	context = {
@@ -156,12 +135,13 @@ def test_by_tag(request, slug): # v
 # а может лучше сделать, чтобы все вопросы выдавались разом?
 # тогда и куки по сути не нужны будут и вообще удобнее как в плане
 # разработки, так и прохождения теста...
-class AnswerTheQuestion(View):					# testing_url
+class AnswerTheQuestion(View):					  ### testing_url
 	def get(self, request, question_id):
 		q = get_object_or_404(Question, id=question_id)
 		a = q.answers.all()
 		asa = q.associate_answers.all()
 
+		# если у вопроса есть и обыч. и ассоц. ответы, то выведутся обычные
 		context = {
 			'q': q,
 			'answers': a,
@@ -182,15 +162,17 @@ class AnswerTheQuestion(View):					# testing_url
 
 	def post(self, request, question_id):
 		# значение одиночного вопроса с одиночным ответом
-		last = request.COOKIES.get('testing')
+		# last = request.COOKIES.get('testing')
 		a_u_o_id = request.POST.get('usr_o_answer') # собтвенный
 		a_u_s_text = request.POST.get('usr_s_answer') # одиночный
 		a_u_m_ids = request.POST.getlist('usr_m_answer') # множественный
 
+		a_u_a_id = request.POST.getlist('usr_a_answer') # ассоц.  доделать!
 
-		print(request.COOKIES)
+
+		# print(request.COOKIES)
 		val = request.COOKIES.get('testing_q')
-		print('val:  ', val, type(val))
+		# print('val:  ', val, type(val))   # string
 		list_q_id = signing.loads(val, key='secret key')
 
 
@@ -204,15 +186,15 @@ class AnswerTheQuestion(View):					# testing_url
 			# next_q = list_q_id[cur_val_index]
 		print('next q:   ', next_q)
 
-
 		# записываем ответ польозвателя ...
 
-		return redirect(reverse('ttests:testing_url', kwargs={'question_id': next_q} )) ###
+		return redirect(reverse('ttests:testing_url', kwargs={'question_id': next_q} ))
+
 
 def finish_testing(request):
 	context = {
 
-	}	# результаты
+	}	# результаты тестирования
 
 	return render(request, 'ttests/finish_testing.html', context)
 

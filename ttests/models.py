@@ -25,9 +25,11 @@ class TestTag(models.Model):
 		ordering = ('title',)
 		managed = True # позволяет django удалять таблицу из БД
 
-	title = models.CharField(max_length=50, blank=True, unique=True)
+	title = models.CharField(max_length=50, blank=True, unique=True,
+							verbose_name='название')
+	# убрать из админки, сделать автозаполняемым через slugify
 	slug = models.SlugField(max_length=50, unique=True,
-					verbose_name='ссылка')
+							verbose_name='ссылка')
 
 	def get_absolute_url(self):
 		return reverse('ttests:test_by_tag_url', kwargs={'slug': self.slug})
@@ -49,7 +51,8 @@ class Test(models.Model):
 	is_shuffle_q - перемешать ли вопросы (вопросы будут показываться не в поряд-
 	ке их составления автором)
 	only_fully_correct - засчитывать только вопросы, на которые был дан 100%
-	правильный ответ (в случае с множественными и ассоциативными ответами)
+	верный ответ (для множеств. и ассоц. ответов)
+
 	'''
 	class Meta:
 		verbose_name = 'Тест'
@@ -64,27 +67,43 @@ class Test(models.Model):
 		# print(filename)
 		return 'user_{0}/{1}'.format(self.author.id, filename)
 
-	title = models.CharField(max_length=140)
-	description = models.TextField(max_length=3500, blank=True, null=True)
+	title = models.CharField(max_length=140, verbose_name='заголовок')
+	description = models.TextField(max_length=3500, blank=True, null=True,
+					verbose_name='описание',
+					help_text='заполнять не обязательно, но это поможет\
+					пользователям лучше понять тематику теста')
 	img_description = models.ImageField(upload_to=user_directory_path,
-	 				blank=True, null=True)
-	is_published = models.BooleanField(default=False, verbose_name='опубликован',
-					help_text='если тест опубликован, он доступен другим\
-					 		пользователям для прохождения; после публикации\
-							 тест нельзя изменять (только удалять)')
+	 				blank=True, null=True, verbose_name='картинка теста',
+					help_text='картинка позволит быстрее найти тест')
+	is_published = models.BooleanField(default=False, verbose_name='опубликовать?',
+					help_text='после публикации тест станет доступен другим\
+					пользователям для прохождения. После публикации\
+					не желательно изменять тест (только удалять)')
+	# убрать и добавить нормальную связь с пользователями
 	author = models.ForeignKey('User', on_delete=models.SET_NULL, null=True,
-					related_name='tests' )	## comment this
-	tags = models.ManyToManyField(to='TestTag', related_name='tests',
-					blank=True)
+					related_name='tests' )
+	tags = models.ManyToManyField(to='TestTag', related_name='tests', blank=True,
+					verbose_name='теги для теста',
+					help_text='Это позволит быстрее найти тест среди других.')
 	create_date = models.DateTimeField(auto_now=False, auto_now_add=True,
 	 				db_index=True)
 	update_date = models.DateTimeField(auto_now=True, auto_now_add=False,
 	 				db_index=True)
 	testing_time = models.DurationField(null=True, blank=True,
-					help_text='в формате чч:мм:сс') # default="00:20:00"
-	show_q_number = models.PositiveSmallIntegerField(null=True, blank=True)
-	is_shuffle_q = models.BooleanField(default=False)  # перемешать ли вопросы
-	only_fully_correct = models.BooleanField(default=False)
+					verbose_name='время тестирования',
+					help_text='в формате ЧЧ:ММ:СС')
+	show_q_number = models.PositiveSmallIntegerField(null=True, blank=True,
+					verbose_name='количество вопросов',
+					help_text='пользователю будет показано столько вопросов.\
+					В действительности тест может иметь больше вопросов')
+	is_shuffle_q = models.BooleanField(default=False,
+					verbose_name='перемешать вопросы?',
+					help_text='вопросы будут идти не по порядку')
+	only_fully_correct = models.BooleanField(default=False,
+					verbose_name='только 100% верные ответы',
+					help_text='засчитывать только полностью верные ответы\
+					(для вопросов с множественными и ассоциативными ответами)\
+					иначе будет вычислен балл для частично правильных ответов')
 	#  не создавать - будет браться из значения поля id для теста
 	# slug = models.SlugField
 
@@ -102,9 +121,9 @@ class Test(models.Model):
 		return [ item['id'] for item in dict_val ]
 
 	def __str__(self):
-		if len(self.title) < 70:
+		if len(self.title) < 50:
 			return self.title
-		return '{}...'.format(self.title[:67])
+		return '{}...'.format(self.title[:47])
 
 
 class QuestionTag(models.Model):
@@ -113,9 +132,15 @@ class QuestionTag(models.Model):
 		verbose_name_plural = 'Теги вопроса'
 		managed = True
 
-	name = models.CharField(max_length=120)
-	recommendation = models.TextField(max_length=2000)
-	questions = models.ManyToManyField(to='Question', related_name='tags')
+	name = models.CharField(max_length=120, verbose_name='название')
+	recommendation = models.TextField(max_length=2000, verbose_name='рекомендации',
+							help_text='рекомендации будут выведены тестируемому\
+							в конце теста, если он неправильно ответит на вопросы\
+							с этим тегом')
+	questions = models.ManyToManyField(to='Question', related_name='tags',
+							verbose_name='для вопроса')
+	# убрать поле из админки, сделать автоматическое заполнение
+	# наверно с помощью "сигналов"
 	test = models.ForeignKey(to='Test', on_delete=models.CASCADE,
 							related_name='questions_tags')
 
@@ -137,13 +162,14 @@ class Question(models.Model):
 					self.test.author.id, self.test.id, filename)
 
 	test = models.ForeignKey('Test', on_delete=models.CASCADE,
-	 						related_name='questions')
-	text = models.TextField(max_length=1500)
+	 						related_name='questions', verbose_name='для теста')
+	text = models.TextField(max_length=1500, verbose_name='текст вопроса')
 	mediafile = models.ImageField(upload_to=user_directory_path, blank=True,
-	 						null=True)
+	 						null=True, verbose_name='картинка для вопроса')
 	point = models.PositiveSmallIntegerField(default=1,
-							verbose_name='балл за верный ответ')
-	explanation = models.TextField(blank=True, max_length=1000)
+							verbose_name='баллы за верный ответ')
+	explanation = models.TextField(blank=True, max_length=1000,
+							verbose_name='пояснение ответа')
 
 	def count_answers(self):
 		return self.answers.count()
@@ -167,13 +193,13 @@ class Question(models.Model):
 class Answer(models.Model):
 	class Meta:
 		verbose_name = 'Одиноч. / множеств. / самост. ответ'
-		verbose_name_plural = 'Одиноx. / множеств. / самостоят. ответы'
+		verbose_name_plural = 'Одиноч. / множеств. / самост. ответы'
 		managed = True
 
 	question = models.ForeignKey(to='Question', on_delete=models.CASCADE,
-								related_name='answers')
-	text = models.CharField(max_length=300)
-	is_right = models.BooleanField(default=False)
+							related_name='answers', verbose_name='для вопроса')
+	text = models.CharField(max_length=300, verbose_name='текст ответа')
+	is_right = models.BooleanField(default=False, verbose_name='это правильный ответ')
 
 	def __str__(self):
 		if len(self.text) < 70:
@@ -188,9 +214,12 @@ class AssociateAnswer(models.Model):
 		managed = True
 
 	question = models.ForeignKey(to='Question', on_delete=models.CASCADE,
-								related_name='associate_answers')
-	right_side = models.CharField(max_length=300, blank=True, null=True)
-	left_side = models.CharField(max_length=300)
+							related_name='associate_answers',
+							verbose_name='для вопроса')
+	right_side = models.CharField(max_length=300, blank=True, null=True,
+							verbose_name='правая часть',
+							help_text='правая часть сопоставления может быть пустой')
+	left_side = models.CharField(max_length=300, verbose_name='левая часть')
 
 	def __str__(self):
 		if self.right_side:
