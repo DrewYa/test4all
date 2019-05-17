@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from .models import Test, TestTag, Question
 
-# from django.http import Http404
+from django.http import Http404
 from django.db.models import Q, Count
 # from django.db.models import F
 
@@ -84,30 +84,31 @@ class TestDetail(View):
 		if show_q_number and show_q_number < len(list_questions_id):
 			list_questions_id = list_questions_id[:show_q_number]
 
-		next_q = Question.objects.get(id=list_questions_id[0])
-		response = redirect(next_q)
-		# --------------------------------------
+		# ------- работает -------
+		# next_q = Question.objects.get(id=list_questions_id[0])
+		# response = redirect(next_q) 					### заменить на q_number
+		# ----- проба -----
+		# см словарь с вопросами:  это будет нулевой вопрос
+		next_q_number = 0
+		response = redirect(reverse('ttests:testing_url',
+									kwargs={'q_number': next_q_number}))
 
-		# # response.set_cookie(key='testing_q', value=list_questions_id) #path=..
-		# dict_q_id = {}
-		# for i in range(len(list_questions_id)):
-		# 	dict_q_id[i] = list_questions_id[i] # хоть так dict_q_id[str(i)] = ...
-		#
-		# # response.set_signed_cookie(key='testing_q', value=l_q_id,
-		# # 							path='/') #### /<test_id>/testing/
-		#
-		# d = signing.dumps(dict_q_id, key='secret key')
-		# response.set_cookie(key='testing_q', value=d)
-		#
+		# # ----- работает -------
+		# l = signing.dumps(list_questions_id, key='secret key')
+		# response.set_cookie(key='testing_q', value=l)
 		# return response
 
-		# работает ---
-		l = signing.dumps(list_questions_id, key='secret key')
-		response.set_cookie(key='testing_q', value=l)
-		return response
+		######## ----- проба ----
+		# допустим    list_questions_id = [23, 28, 38, 29, 40]
+		# тогда это превратится в {'0': 23, '1': 28, '2': 38, '3': 29, '4': 40}
+		d = dict([ (str(num), item) for num, item in enumerate(list_questions_id) ])
+		print(d)
 
-		# проба ----
-		...
+		secd = signing.dumps(d, key='secret key')
+		response.set_cookie(key='testing_q_dict', value=secd)
+		return response
+		# redirect(reverse('ttests:testing_url', kwargs={'question_id': next_q} ))
+		#########
 
 
 def tag_list(request):
@@ -131,64 +132,154 @@ def test_by_tag(request, slug):
 	# return render(request, 'ttests/test_by_tag.html', context)
 	return render(request, 'ttests/test_list.html', context)
 
+def note_cookies_important(request):
+	context = {'title': 'Важно!'}
+	return render(request, 'ttests/note_cookies_important.html', context)
+
+# вьюшка чисто для просмотра автором теста как выглядит вопрос при тестировании
+def show_question(request, question_id): # , author_id
+	# пока не использую - сначала нужно сделать нормальную модель для пользователей
+	# q = get_object_or_404(Question, Q(id=question_id) & Q(test__author=author_id))
+	q = get_object_or_404(Question, id=question_id)
+	a = q.answers.all()
+	asa = q.associate_answers.all()
+
+	# если у вопроса есть и обыч. и ассоц. ответы, то выведутся обычные
+	context = {
+		'q': q,
+		'answers': a,
+		'associate_answers': asa,
+		'title': 'тестирование...'
+	}
+	return render(request, 'ttests/question.html', context)
+
 
 # а может лучше сделать, чтобы все вопросы выдавались разом?
 # тогда и куки по сути не нужны будут и вообще удобнее как в плане
 # разработки, так и прохождения теста...
 class AnswerTheQuestion(View):					  ### testing_url
-	def get(self, request, question_id):
-		q = get_object_or_404(Question, id=question_id)
+	# def get(self, request, question_id):
+	# 	q = get_object_or_404(Question, id=question_id)
+	# 	a = q.answers.all()
+	# 	asa = q.associate_answers.all()
+	#
+	# 	# если у вопроса есть и обыч. и ассоц. ответы, то выведутся обычные
+	# 	context = {
+	# 		'q': q,
+	# 		'answers': a,
+	# 		'associate_answers': asa,
+	# 		'title': 'тестирование...'
+	# 	}
+	#
+	# 	print(request.COOKIES)
+	#
+	# 	response = render(request, 'ttests/question.html', context)
+	# 	return response
+	def get(self, request, q_number):		### версия со словарем в куках
+		secd = request.COOKIES.get('testing_q_dict', None)
+		if not secd: # если такой куки нет
+			# стр. с объяснениями, что куки были удалены или не поддерживаются
+			return redirect(reverse('ttests:note_cookies_important_url'))
+		d = signing.loads(secd, key='secret key')
+		# если пользователь ввел вручную в url number вопроса, которые не сущ.
+		# например -1 или -10 или 1900.
+		# ВАЖНО! отрицательные значения в url не будут восприниматься как числа,
+		# это будет уже строка из дефиса и цифр
+		if str(q_number) not in d:
+			len_d = len(d)
+			if q_number >= len_d:
+				return redirect(reverse('ttests:testing_url',
+										kwargs={'q_number': len_d-1}))
+		current_q_id = d[str(q_number)]
+		# на случай если автор во время прохождения удалит из теста вопрос
+		q = get_object_or_404(Question, id=current_q_id)
 		a = q.answers.all()
 		asa = q.associate_answers.all()
 
-		# если у вопроса есть и обыч. и ассоц. ответы, то выведутся обычные
 		context = {
-			'q': q,
-			'answers': a,
-			'associate_answers': asa,
+			'q' : q,
+			'answers' : a,
+			'associate_answers' : asa,
 			'title': 'тестирование...'
 		}
 
-		print(request.COOKIES)
+		return render(request, 'ttests/question.html', context)
 
-		# last = request.COOKIE.get('testing', None)
-		# if not last:
-		# 	last = {}
-		# last[str(question_id)] = 0 # изменить потом
-		response = render(request, 'ttests/question.html', context)
-		# response.set_cookie('testing', value=)
 
-		return response
+	# def post(self, request, question_id):
+	# 	# значение одиночного вопроса с одиночным ответом
+	# 	a_u_o_id = request.POST.get('usr_o_answer') # собтвенный
+	# 	a_u_s_text = request.POST.get('usr_s_answer') # одиночный
+	# 	a_u_m_ids = request.POST.getlist('usr_m_answer') # множественный
+	#
+	# 	a_u_a_id = request.POST.getlist('usr_a_answer') # ассоц.  доделать!
+	#
+	#
+	# 	# print(request.COOKIES)
+	# 	val = request.COOKIES.get('testing_q')
+	# 	list_q_id = signing.loads(val, key='secret key')
+	#
+	#
+	# 	cur_val_index = list_q_id.index(question_id)
+	#
+	# 	if cur_val_index < len(list_q_id) - 1:
+	# 		next_q = list_q_id[cur_val_index + 1]
+	# 	else:
+	# 		# переход на страницу завершения теста
+	# 		return redirect(reverse('ttests:finish_testing_url'))
+	# 		# next_q = list_q_id[cur_val_index]
+	# 	print('next q:   ', next_q)
+	#
+	# 	# записываем ответ польозвателя ...
+	#
+	# 	return redirect(reverse('ttests:testing_url', kwargs={'question_id': next_q} ))
+	def post(self, request, q_number): 		### версия со словарем в куках
+		secd = request.COOKIES.get('testing_q_dict')
+		if not secd: # если такой куки нет
+			# стр. с объяснениями, что куки были удалены или не поддерживаются
+			return redirect(reverse('ttests:note_cookies_important_url'))
+		d = signing.loads(secd, key='secret key')
+		# вообще это условие можно не делать, т.к. мы его поставили на GET-запрос
+		# а значит пользователь просто не сможет получить документ для того, чтобы
+		# его потом отправить POST-запросом. Но пусть будет
+		try:
+			# понадобится в качестве ключа для словаря в куках, куда будет
+			# записываться ответ пользователя
+			current_q_id = d[str(q_number)]
+		except KeyError:
+			Http404
+		# делаем остальное уже после того, как проверим, что такой
+		# number вопроса есть в словаре "вопросов-id_вопросов"
+		next_q_number = q_number + 1
+		if next_q_number < 0:
+			# показываем нулевой вопрос
+			next_q_number = 0
+		# # по умолчанию при ответе на вопрос, будет выдан следующий вопрос
+		# elif next_q_number < len(d):
+		# 	# переходим на следующий вопрос
+		# 	next_q_number = q_number + 1
+		elif next_q_number > len(d):
+			# если больше чем вопросов, показываем этот же (последний) вопрос
+			next_q_number = q_number
+		# else: # если q_number == len(d)
+		# 	# показываем этот же (последний) вопрос
+		# 	# думаю, чтобы завершить тестирование пользователю нужно будет
+		# 	# самому нажать на кнопку "завершить тестирование"
+		# 	next_q_number = q_number
 
-	def post(self, request, question_id):
-		# значение одиночного вопроса с одиночным ответом
-		# last = request.COOKIES.get('testing')
+		response = redirect(reverse('ttests:testing_url',
+									kwargs={'q_number': next_q_number}))
+
+		# считываем ответ пользователя
 		a_u_o_id = request.POST.get('usr_o_answer') # собтвенный
 		a_u_s_text = request.POST.get('usr_s_answer') # одиночный
 		a_u_m_ids = request.POST.getlist('usr_m_answer') # множественный
-
 		a_u_a_id = request.POST.getlist('usr_a_answer') # ассоц.  доделать!
 
+		# записываем полученные данные в куки
+		# (пока идет тестирования все ответы сохраняем в куки)
 
-		# print(request.COOKIES)
-		val = request.COOKIES.get('testing_q')
-		# print('val:  ', val, type(val))   # string
-		list_q_id = signing.loads(val, key='secret key')
-
-
-		cur_val_index = list_q_id.index(question_id)
-
-		if cur_val_index < len(list_q_id) - 1:
-			next_q = list_q_id[cur_val_index + 1]
-		else:
-			# переход на страницу завершения теста
-			return redirect(reverse('ttests:finish_testing_url'))
-			# next_q = list_q_id[cur_val_index]
-		print('next q:   ', next_q)
-
-		# записываем ответ польозвателя ...
-
-		return redirect(reverse('ttests:testing_url', kwargs={'question_id': next_q} ))
+		return response
 
 
 def finish_testing(request):

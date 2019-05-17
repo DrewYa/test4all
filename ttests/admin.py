@@ -58,7 +58,10 @@ class TestAdmin(admin.ModelAdmin):
 									'show_q_number',
 									'is_shuffle_q',
 									'tags',
-									'only_fully_correct' ]})
+									'only_fully_correct' ],
+						# 'classes': ['collapse']
+						}
+		)
 	]
 	list_display = ('title', 'author', 'update_date', 'id')
 	search_fields = ('title',)
@@ -74,5 +77,7 @@ admin.site.register(Question, QuestionAdmin)
 admin.site.register(Test, TestAdmin)
 admin.site.register(QuestionTag, QuestionTagAdmin)
 
+# о том, как упорядочить в админке сущности
+# https://toster.ru/q/559846
 
-# admin.ModelAdmin.se
+# admin.ModelAdmin.

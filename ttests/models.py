@@ -181,8 +181,10 @@ class Question(models.Model):
 		return self.associate_answers.count()
 
 	# ###
+	# def get_absolute_url(self):
+	# 	return reverse('ttests:testing_url', kwargs={'question_id': self.id})
 	def get_absolute_url(self):
-		return reverse('ttests:testing_url', kwargs={'question_id': self.id})
+		return reverse('ttests:show_question_url', kwargs={'question_id': self.id})
 
 	def __str__(self):
 		if len(self.text) < 70:
