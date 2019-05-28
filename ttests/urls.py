@@ -10,13 +10,8 @@ urlpatterns = [
 	# чтобы посмотреть как выглядит вопрос из админки
 	path('show_question/<int:question_id>', views.show_question,
 	 		name='show_question_url'),
-	# скорее всего нужно убрать потом функционал, чтобы можно было обращаться
-	# к тесту введя его id в url или как-то еще
-	# path('testing/<int:question_id>', views.AnswerTheQuestion.as_view(),
-	#  		name='testing_url'),
 	path('testing/<int:q_number>', views.AnswerTheQuestion.as_view(),
 	 		name='testing_url'),
-	path('finish_testing', views.finish_testing, name='finish_testing_url'),
 	path('note-cookies-important', views.note_cookies_important,
 			name='note_cookies_important_url'),
 

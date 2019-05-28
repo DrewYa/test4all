@@ -1,30 +1,84 @@
+
+<div class="form-row">
+	<div class="col-auto mr-5">
+	<!-- ans_r -->
+	{% for r in r_associate_answers %}
+		{% if r.right_side %}
+		<div class="form-group">
+			<select class="custom-select custom-select-sm mr-1 mb-1" name="usr_a_answer" style="width: 3.8em">
+				<option selected value="0"></option>
+				{% for l in l_associate_answers %}
+				<option value="{{ l.id }}">{{ forloop.counter }}</option>
+				{% endfor %}
+			</select>
+			<span>{{ r.right_side }}</span>
+		</div>
+		{% else %}
+			<!-- не знаю что за баг, но здесь должно быть такое же количество "нулевых" вариантов, сколько вариантов в левой части. И даже это не гарантия -->
+			<select hidden name="usr_a_answer" >
+				<option selected value="0"></option>
+				{% for _ in l_associate_answers %}
+				<option value="0">{{ forloop.counter }}</option>
+				{% endfor %}
+			</select>
+		{% endif %}
+	{% endfor %}
+	</div>
+
+	<div class="col-auto mt-1">
+	<!-- ans_l -->
+	{% for l in l_associate_answers %}
+		<p class="mb-2"><span class="badge badge-secondary mr-2">{{ forloop.counter }}</span>
+			{{ l.left_side }}
+		</p>
+	{% endfor %}
+	</div>
+</div>
+
+
+
+
+
+{% comment %}
+<!-- ======================================================================== -->
 <form class="" action="" method="post">
 	{% csrf_token %}
+<div class="form-row">
+	<div class="col-sm-6">
 
-	{% for r in associate_answers %} <!-- ans_r -->
-	<p>
-		<input list="variables" name="usr_a_answer {{ r.id }}" value="" size="3">
-		<span>{{ r.right_side }}</span>
-	</p>
-	{% endfor %}
+		{% for r in associate_answers %} <!-- ans_r -->
+		<div class="form-group">
+			<input list="variables" name="usr_a_answer {{ r.id }}" value="" size="3">
+			<span>{{ r.right_side }}</span>
+		</div>
+		{% endfor %}
 
-	<datalist class=""	id="variables">
-	{% for l in associate_answers %} <!-- ans_l -->
-		<option value="{{ forloop.counter }}"> {{ l.left_side }} -nothing- </option>
-	{% endfor %}
-	</datalist>
+	</div>
 
-	{% for l in associate_answers %} <!-- ans_l -->
-		<p><span>[{{ forloop.counter }}]</span>{{ l.left_side }}</p>
-	{% endfor %}
+		<datalist class=""	id="variables">
+			{% for l in associate_answers %} <!-- ans_l -->
+			<option value="{{ forloop.counter }}"> {{ l.left_side }} -nothing- </option>
+			{% endfor %}
+		</datalist>
 
-	<p>
-		<input type="submit" name="" value="отправить">
-		<input type="reset" name="" value="очистить">
+
+	<div class="col-sm-6">
+
+		{% for l in associate_answers %} <!-- ans_l -->
+			<p><span class="badge badge-secondary mr-2">{{ forloop.counter }}</span>{{ l.left_side }}</p>
+		{% endfor %}
+
+	</div>
+
+</div>
+	<p class="mt-5">
+		<input type="reset" value="Очистить" class="btn btn-outline-secondary">
+		<input type="submit" value="Ответить" class="btn btn-primary"
+				style="float: right; clear: both">
 	</p>
 </form>
-
-
+<!-- ================================================================== -->
+{% endcomment %}
 {% comment %}
 <!-- ================================================= -->
 <form class="" action="" method="post">

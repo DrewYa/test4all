@@ -20,6 +20,7 @@ from django.urls import include
 urlpatterns = [
     path('admin/', admin.site.urls),
 	path('', include('ttests.urls')),
+	path('results/', include('tresults.urls')),
 ]
 
 
@@ -28,6 +29,7 @@ from . import settings
 from django.conf.urls.static import static
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 # а так можно реализовать собственные вьюшки для обработки ошибок

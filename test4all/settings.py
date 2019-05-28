@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'ttests.apps.TtestsConfig',
+	'tresults.apps.TresultsConfig', # результаты
 ]
 
 MIDDLEWARE = [
@@ -97,18 +98,18 @@ DATABASES = {
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
 ]
 
 # AUTH_USER_MODEL = 'core.MyUserModel'
@@ -147,10 +148,10 @@ USE_TZ = True
 
 # для файлов статики:
 STATIC_URL = '/static/'
-# STATIC_ROOT = BASE_DIR + '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # т.к. static_root я не устанавливал, здесь это значение равно None
-# STATICFILES_DIRS = []
+# STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static'),  ]
 # STATICFILES_FINDERS = ['django.contrib.staticfiles.finders.FileSystemFinder', 'django.contrib.staticfiles.finders.AppDirectoriesFinder']
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 # STATIC_ROOT = None

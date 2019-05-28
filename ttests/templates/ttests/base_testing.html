@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{# spaceless убирает пробелы между тегами (страница будет весить чуть меньше) #}
+{% spaceless %}
 <html lang="ru">
 	<head>
 		<meta charset="utf-8">
@@ -35,14 +37,14 @@
 
 				</ul>
 
-				<a class="btn btn-outline-info" href="{% url 'ttests:finish_testing_url' %}">завершить тестирование</a>
+				<a class="btn btn-outline-info" href="{% url 'tresults:processing_results_url' %}">завершить тестирование</a>
 			</div>
 
 		</nav>
 
 		<div class="container mt-3">
 			<div class="row">
-				<div class="col-10 offset-1">
+				<div class="col-md-10 offset-md-1">
 				{% block content %}
 					no content yet
 				{% endblock %}</div>
@@ -80,3 +82,4 @@
 
 	</body>
 </html>
+{% endspaceless %}

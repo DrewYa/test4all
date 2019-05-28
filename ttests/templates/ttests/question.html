@@ -10,8 +10,11 @@
 	</div>
 	<div class="card-body">
 
+	<form class="" action="" method="post">
+	{% csrf_token %}
+
 		{% if answers %}
-			{% if answers.count == 1 %}
+			{% if q.answers.count == 1 %}
 				<!-- вопрос с самостоятельным ответом -->
 				{% include 'ttests/_own_answer.html' %}
 			{% else %}
@@ -23,7 +26,7 @@
 					{% include 'ttests/_multiple_answer.html' %}
 				{% endif %}
 			{% endif %}
-		{% elif associate_answers %}
+		{% elif q.associate_answers.count %}
 			<!-- форма с овтетами для сопоставления -->
 			{% include 'ttests/_associative_answer.html' %}
 		{% else %}
@@ -31,6 +34,12 @@
 			<p>Для этого вопроса нет вариантов ответа О_о</p>
 		{% endif %}
 
+	<p class="mt-5">
+		<input type="reset" value="Очистить" class="btn btn-outline-secondary mb-1">
+		<input type="submit" value="Ответить" class="btn btn-primary"
+				style="float: right">
+		</p>
+	</form>
 	</div>
 </div>
 

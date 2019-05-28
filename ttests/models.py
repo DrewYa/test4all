@@ -3,8 +3,24 @@ from django.db.models import Q
 from django.shortcuts import reverse
 import os
 
+# для валидации полей
+from django.core.exceptions import ValidationError
+# from .validators import validate_even
+
+# ------------------
+
+# https://djbook.ru/rel1.9/topics/signals.html
+# from django.core.signals import .. # отправляются при нач. и оконч. http запроса
+# from django.db.signals import
+# отпрвл. до и после вызова м. save() модели; до и после вызоыва м.
+# delete() модели и QuerySet'a; после изменения ManyToManyField в модели;
+# начала и окончания http запроса
+# from django.db.models.signals import
+
+# ----------------
+
 # Create your models here.
-# from django.db.signals
+
 
 class User(models.Model):											## del model
 	class Meta:
@@ -25,11 +41,11 @@ class TestTag(models.Model):
 		ordering = ('title',)
 		managed = True # позволяет django удалять таблицу из БД
 
-	title = models.CharField(max_length=50, blank=True, unique=True,
+	title = models.CharField(max_length=50, unique=True,
 							verbose_name='название')
 	# убрать из админки, сделать автозаполняемым через slugify
 	slug = models.SlugField(max_length=50, unique=True,
-							verbose_name='ссылка')
+							verbose_name='ссылка',   blank=True)
 
 	def get_absolute_url(self):
 		return reverse('ttests:test_by_tag_url', kwargs={'slug': self.slug})
@@ -37,8 +53,18 @@ class TestTag(models.Model):
 	def count_published_test(self):
 		return self.tests.filter(is_published=True).count()
 
+	# def clean(self):
+	# 	if self.objects.get(title__iexact=self.title):
+	# 		raise ValidationError('такой тег уже существует')
+
+	# def save(self, force_insert=False, force_update=False):
+	# 	self.title = self.title.lower()
+	# 	super(TestTag, self).save(force_insert, force_update)
+	# 	# self.full_clean(exclude=None, validate_unique=True)
+
 	def __str__(self):
 		return self.title
+
 
 class Test(models.Model):
 	'''\
@@ -141,6 +167,9 @@ class QuestionTag(models.Model):
 							verbose_name='для вопроса')
 	# убрать поле из админки, сделать автоматическое заполнение
 	# наверно с помощью "сигналов"
+	# а вообще нужно ли оно? (если тест удалить, то его вопросы, а значит и теги
+	# тоже. Делал для того, чтобы у каждого теста были уникальный набор тегов и
+	# не было ситуации, что один и тот же тег применялся к разным тестам с вопросами)
 	test = models.ForeignKey(to='Test', on_delete=models.CASCADE,
 							related_name='questions_tags')
 
@@ -148,7 +177,6 @@ class QuestionTag(models.Model):
 		if len(self.name) < 70:
 			return self.name
 		return '{}...'.format(self.name[:67])
-
 
 class Question(models.Model):
 	class Meta:
@@ -167,7 +195,8 @@ class Question(models.Model):
 	mediafile = models.ImageField(upload_to=user_directory_path, blank=True,
 	 						null=True, verbose_name='картинка для вопроса')
 	point = models.PositiveSmallIntegerField(default=1,
-							verbose_name='баллы за верный ответ')
+							verbose_name='баллы за верный ответ',)
+							# validators=[validate_even])
 	explanation = models.TextField(blank=True, max_length=1000,
 							verbose_name='пояснение ответа')
 
@@ -179,6 +208,26 @@ class Question(models.Model):
 
 	def count_associate_answers(self):
 		return self.associate_answers.count()
+
+	def count_right_not_none(self):
+		return self.associate_answers.exclude(right_side=None).count()
+
+	# недостаточно хорошо работает
+	def clean(self):
+		if self.answers.count() != 0 and self.associate_answers.count() != 0:
+			asa = self.associate_answers.all()
+			asa.delete()
+			raise ValidationError('Вопрос не может быть одновременно вопросом на\
+			 	сопоставление и вопросом на саомстоятельный / одиночный /\
+				множественный ответ.')
+		# а еще нужно добавить проверку - установлен ли хотябы у одного ответа
+		# флажок is_right
+		# а если там ассоциативные ответы - установлен ли хотябы для одного из
+		# них необязательная "right_side"
+
+
+	# def ids_answers(self):
+	# 	return self.answers
 
 	# ###
 	# def get_absolute_url(self):
@@ -200,6 +249,7 @@ class Answer(models.Model):
 
 	question = models.ForeignKey(to='Question', on_delete=models.CASCADE,
 							related_name='answers', verbose_name='для вопроса')
+							# validators=[validate_one_type_answer])
 	text = models.CharField(max_length=300, verbose_name='текст ответа')
 	is_right = models.BooleanField(default=False, verbose_name='это правильный ответ')
 
@@ -223,6 +273,9 @@ class AssociateAnswer(models.Model):
 							help_text='правая часть сопоставления может быть пустой')
 	left_side = models.CharField(max_length=300, verbose_name='левая часть')
 
+	def right_side_none(self):
+		return False if self.right_side else True
+
 	def __str__(self):
 		if self.right_side:
 			if len(self.right_side) < 35:
@@ -236,6 +289,48 @@ class AssociateAnswer(models.Model):
 		else:
 			l = self.left_side[:27] + '..'
 		return '{} <-> {}'.format(r, l)
+
+
+
+
+
+# ----------- сигналы -------------
+
+from django.db.models.signals import pre_save
+from transliterate import translit
+from django.utils.text import slugify
+
+def pre_save_test_tag_slug(sender, instance, *args, **kwargs):
+	# в этом случае заголовок будет приведен к нижнему регистру, но ошибки
+	# валидации не вызовет
+	instance.title = instance.title.lower()
+	# это не прокатывает
+	# if TestTag.objects.get(title__iexact=instance.title):
+	# 	raise ValidationError('такой тэг теста уже существует')
+	if not instance.slug:
+		print('title:   ', instance.title)
+		# reversed - чтобы ru -> en
+		translit_title = translit(instance.title, reversed=True)
+		slug = slugify(translit_title)
+		print('slug:   ', slug)
+		instance.slug = slug
+	'''
+	# работает, но вместо того, чтобы показать заново страницу с редактированием
+	try:
+		# тэга - показывает страницу с ошибками
+		instance.full_clean(exclude=None, validate_unique=True)
+	except ValidationError as e:
+		raise ValidationError('sdddf')
+	'''
+
+pre_save.connect(receiver=pre_save_test_tag_slug, sender=TestTag)
+# теперь если мы зайдем в модели TestTag у поля slug нужно указать blank=True
+
+
+# def pre_save_question_tag(sender, instance, *args, **kwargs):
+# 	if not instance.test:
+# 		instance.test = instance.questions.all()[0].test.id
+# pre_save.connect(reveiver=pre_save_question_tag, sender=QuestionTag)
 
 
 
@@ -289,7 +384,9 @@ class TestResult(models.Model):
 # https://djbook.ru/rel1.4/topics/migrations.html#data-migrations
 # это делается с помощью команды
 # python manage.py makemigrations --empty yourappname
-
+# --------------------------------------------------------------------
+# для создания сложных вопросов, нужна агрегация
+# https://docs.djangoproject.com/en/2.0/topics/db/aggregation/#filtering-on-annotations
 # --------------------------------------------------------------------------
 '''
 все же возможно сделать функцию для атрибута поля upload_to

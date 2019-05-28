@@ -1,0 +1,25 @@
+{% extends 'ttests/base.html' %}
+
+{% block content %}
+
+	<div class="card text-center">
+		<div class="card-header">
+			<h2 class="text-muted">Тестирование завершено</h1>
+		</div>
+		<div class="card-body">
+			<h5 class="card-title text-mute">Результаты тестирования</h5>
+			<p class="card-text h5">Вы набрали
+				<span class="badge badge-primary ml-1">{{ result }}</span>
+				из 100 баллов
+			</p>
+			<!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+		</div>
+		{% if test_time %}
+		<div class="card-footer text-muted">
+			время прохождения теста: {{ test_time.0 }}ч
+			{{ test_time.1 }}м {{ test_time.2 }}с
+		</div>
+		{% endif %}
+	</div>
+
+{% endblock %}

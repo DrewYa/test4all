@@ -5,12 +5,18 @@ from django.contrib import admin
 from .models import *
 
 admin.site.register(User)
-admin.site.register(TestTag)		# Добавить slugify
+# admin.site.register(TestTag)		# Добавить slugify
 # admin.site.register(Test)
 # admin.site.register(QuestionTag)
 # admin.site.register(Question)
 # admin.site.register(Answer)#
 # admin.site.register(AssociateAnswer)#
+
+class TestTagAdmin(admin.ModelAdmin):
+	model = TestTag
+	fieldsets = [(None, {'fields': ['title']})]
+	list_display = ('title', 'id', 'slug')
+
 
 class AnswerTabularInline(admin.TabularInline):
 	model = Answer
@@ -66,6 +72,8 @@ class TestAdmin(admin.ModelAdmin):
 	list_display = ('title', 'author', 'update_date', 'id')
 	search_fields = ('title',)
 	inlines = [QuestionStackedInline]
+	# list_display_links = (,)
+	# list_filter = (,)
 	# field_set = {}
 
 
@@ -76,6 +84,7 @@ class QuestionTagAdmin(admin.ModelAdmin):
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Test, TestAdmin)
 admin.site.register(QuestionTag, QuestionTagAdmin)
+admin.site.register(TestTag, TestTagAdmin) # убрать потом из админки вообще
 
 # о том, как упорядочить в админке сущности
 # https://toster.ru/q/559846
