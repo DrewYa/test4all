@@ -167,3 +167,24 @@ class AnswerTheQuestion(View):					  ### testing_url
 # 	}	# результаты тестирования
 #
 # 	return render(request, 'ttests/finish_testing.html', context)
+
+
+
+''''
+# дважды подписанные зашифрованные куки
+# signing.dumps() + set_signed_cookie()  =>  get_signed_cookie()
+'sec_tsting': 'eyIzMiI6eyIxMTUiOjEsIjExNiI6MCwiMTE3IjowLCIxMTkiOjAsIjEyMCI6MSwiMTIxIjowfX0:1hQKS5:3G4ATNP157bp7WCNAySLkDX3hsM:1hQKS5:QgkqPCYg6ppVWdIk1Nma3DvD6Co'
+
+sec val from cookie:
+{'32': {'115': 1, '116': 0, '117': 0, '119': 0, '120': 1, '121': 0}}
+
+# подписанные зашифрованные куки
+# signing.dumps() + set_cookie()  =>  COOKIES.get()
+'sec_testing2': 'eyIzMiI6eyIxMTUiOjEsIjExNiI6MCwiMTE3IjowLCIxMTkiOjAsIjEyMCI6MSwiMTIxIjowfX0:1hQKS5:3G4ATNP157bp7WCNAySLkDX3hsM'
+
+значение из шифрованных, подписанных кук:
+{'32': {'115': 1, '116': 0, '117': 0, '119': 0, '120': 1, '121': 0}}
+
+и кстати, если заморочиться и прописать путь (path) в set_signed_cookie
+то можно обойтись без id в  {'32': {'115': 1, '116': 0, ... }}
+'''

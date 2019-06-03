@@ -15,7 +15,7 @@
 	{% if test.tags.first %}
 		<h5>Для этого теста определены <span class="badge badge-secondary">теги:</span></h5>
 		{% for tag in test.tags.all %}
-			<a class="btn btn-outline-info btn-sm mb-1"
+			<a class="btn btn-outline-info btn-sm mb-1 mr-1"
 				href="{{ tag.get_absolute_url }}">{{ tag.title }}</a>
 		{% endfor %}
 		{% else %}

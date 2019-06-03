@@ -27,11 +27,7 @@
 		<li class="list-group-item">Время для решения теста: не ограничено</li>
 		{% endif %}
 
-		{% if test.show_q_number %}
-	    <li class="list-group-item">количество вопросов для решения: {{ test.show_q_number }}</li>
-		{% else %}
 	    <li class="list-group-item">количество вопросов для решения: {{ test.count_q_to_answer }}</li>
-		{% endif %}
 
 		{% if test.only_fully_correct %}
 	    <li class="list-group-item text-danger">Внимание, засчитываются только 100% правильные ответы на вопросы</li>
@@ -52,14 +48,19 @@
 	    <!-- <a href="#" class="card-link btn btn-outline-primary">Пройти тест</a> -->
 
 		<form class="" action="" method="post">
+		<p>
 			{% csrf_token %}
 			<input type="submit" value="Пройти тест"
 					class="card-link btn btn-outline-primary">
+
+			<!-- если тест уже проходил, то кнопка
+			"показать результаты последнего тестирования" -->
+			{% if is_exist_results %}
+			<a href="{% url 'ttests:test_results_url' id=test.id %}" class="card-link btn btn-outline-dark" style="float: right">результаты</a>
+			{% endif %}
+		</p>
 		</form>
 
-	    <!-- <a href="#" class="card-link">Another link</a> -->
-		<!-- если тест уже проходил, то кнопка
-			"показать результаты последнего тестирования" -->
 	  </div>
 	</div>
 

@@ -9,7 +9,7 @@
 		<div class="card-body">
 			<h5 class="card-title text-mute">Результаты тестирования</h5>
 			<p class="card-text h5">Вы набрали
-				<span class="badge badge-primary ml-1">{{ result }}</span>
+				<span class="badge badge-primary ml-1">{{ tresult.result }}</span>
 				из 100 баллов
 			</p>
 			<!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
@@ -20,6 +20,18 @@
 			{{ test_time.1 }}м {{ test_time.2 }}с
 		</div>
 		{% endif %}
+
+		{% if recommendations %}
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<h5 class="text-info">Рекомендации по итогам тестирования</h5>
+			</li>
+			{% for recommendation in recommendations %}
+			<li class="list-group-item text-left"> {{ recommendation|urlizetrunc:47 }} </li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+
 	</div>
 
 {% endblock %}

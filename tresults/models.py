@@ -7,17 +7,26 @@ class Testing(models.Model):	# прохождение теста
 		verbose_name = 'Подробный результат тестирования'
 		verbose_name_plural = 'Подробные результаты тестирования'
 		managed = True
-
+	# потом удалить поля user и test, т.к. эти поля уже есть у TestingResult,
+	# связанной с этой моделью
 	user = models.ForeignKey(to='ttests.User', on_delete=models.CASCADE,
-				related_name='testings')
+				related_name='testings',
+				verbose_name='тестируемый')
 	test = models.ForeignKey(to='ttests.Test', on_delete=models.SET_NULL,
-				null=True, related_name='testings')
+				null=True, related_name='testings',
+				verbose_name='тест')
 	question = models.ForeignKey(to='ttests.Question',
-				null=True, on_delete=models.SET_NULL, related_name='testings')
-	score = models.CharField(max_length=27) # json
+				null=True, on_delete=models.SET_NULL, related_name='testings',
+				verbose_name='вопрос')
+	score = models.CharField(max_length=27,
+				verbose_name='балл',
+				help_text='в формате набранный балл / максимальный балл')
+	testing_result = models.ForeignKey('TestingResult', on_delete=models.SET_NULL,
+				null=True, related_name='testings')
 
-	# def __repr__(self):
-	# 	return 'пользователь: {}, тест {}'.format( self.user, self.test)
+	def __repr__(self):
+		return 'u: {}, t.id: {}, q.id: {}'.format(
+									self.user, self.test.id, self.question.id)
 
 class TestingAssocAnswer(models.Model):
 	class Meta:
@@ -44,19 +53,30 @@ class TestingAnswer(models.Model):
 
 class TestingResult(models.Model):		# краткие результаты тестирования
 	class Meta:
-		verbose_name = 'Краткий результат тестирования'
-		verbose_name_plural = 'Краткие результаты тестирования'
+		verbose_name = ' Результат тестирования'
+		verbose_name_plural = ' Результаты тестирования'
 		managed = True
 
 	user = models.ForeignKey(to='ttests.User', on_delete=models.CASCADE,
-				related_name='testing_results')
+				related_name='testing_results',
+				verbose_name='тестируемый')
 	test = models.ForeignKey(to='ttests.Test', on_delete=models.SET_NULL,
-				null=True, related_name='testing_results')
-	result = models.PositiveSmallIntegerField() # 0 - 100 (%)
-	date_complition = models.DateTimeField(db_index=True)
-	date_start = models.DateTimeField(db_index=True)
-	# все-таки связь многие-ко-многим  (у одного результата может быть много
-	# тегов, а у один тег может быть применен к многим результатам)
-	questions_tags = models.ForeignKey(to='ttests.QuestionTag',
-				null=True, on_delete=models.SET_NULL,
-				related_name='testing_results')
+				null=True, related_name='testing_results',
+				verbose_name='тест')
+	result = models.PositiveSmallIntegerField(verbose_name='итоговый балл') # 0 - 100 (%)
+	date_complition = models.DateTimeField(db_index=True,
+				verbose_name='завершение тестирования')
+	date_start = models.DateTimeField(db_index=True,
+				verbose_name='начало тестирования')
+	questions_tags = models.ManyToManyField(to='ttests.QuestionTag',
+				related_name='testings_results', blank=True,
+				verbose_name='теги вопросов',
+				help_text='рекомендации из этих тегов будут показаны пользователю')
+
+	def __repr__(self):
+		return 't.id: {}, u.id: {}, id: {}'.format(self.test.id, self.user.id, self.id)
+
+# ------------------------------------------------------------
+
+# по поводу Meta.managed = True
+# https://djbook.ru/rel1.9/ref/models/options.html#django.db.models.Options.managed

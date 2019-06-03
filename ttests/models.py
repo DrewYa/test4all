@@ -137,10 +137,13 @@ class Test(models.Model):
 		return reverse('ttests:test_detail_url', kwargs={'id': self.id})
 
 	def count_q_to_answer(self):
-		if self.show_q_number and \
-		 		self.show_q_number <= self.questions.count():
-			return self.show_q_number
-		return self.questions.count()
+		s_q_n = self.show_q_number
+		real_q_count = self.questions.count()
+		if s_q_n is not None:
+			if s_q_n < 1 and real_q_count > 0:  return 1
+			elif s_q_n < 1 and real_q_count == 0:  return 0
+			elif s_q_n <= real_q_count:  return s_q_n
+		return real_q_count
 
 	def get_all_q_id(self):
 		dict_val = self.questions.values('id')
