@@ -151,7 +151,7 @@ STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # т.к. static_root я не устанавливал, здесь это значение равно None
-# STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static'),  ]
+STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static'),  ]
 # STATICFILES_FINDERS = ['django.contrib.staticfiles.finders.FileSystemFinder', 'django.contrib.staticfiles.finders.AppDirectoriesFinder']
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 # STATIC_ROOT = None

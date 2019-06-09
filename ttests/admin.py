@@ -5,17 +5,15 @@ from django.contrib import admin
 from .models import *
 
 admin.site.register(User)
-# admin.site.register(TestTag)		# Добавить slugify
-# admin.site.register(Test)
 # admin.site.register(QuestionTag)
 # admin.site.register(Question)
-# admin.site.register(Answer)#
-# admin.site.register(AssociateAnswer)#
+
 
 class TestTagAdmin(admin.ModelAdmin):
 	model = TestTag
 	fieldsets = [(None, {'fields': ['title']})]
 	list_display = ('title', 'id', 'slug')
+	search_fields = ['title']
 
 
 class AnswerTabularInline(admin.TabularInline):
@@ -36,7 +34,7 @@ class QuestionAdmin(admin.ModelAdmin):
 		('Опционально', {'fields': ['mediafile', 'explanation' ]})
 	]
 	list_display = ('text', 'test', 'id')
-	search_fields = ('text',)
+	search_fields = ('text', 'test__title')
 	inlines = [AnswerTabularInline, AssociateAnswerTabularInline]
 
 
@@ -69,17 +67,18 @@ class TestAdmin(admin.ModelAdmin):
 						}
 		)
 	]
-	list_display = ('title', 'author', 'update_date', 'id')
+	list_display = ('title', 'update_date', 'create_date', 'author', 'id')
 	search_fields = ('title',)
 	inlines = [QuestionStackedInline]
+	list_filter = ['update_date', 'create_date']
 	# list_display_links = (,)
-	# list_filter = (,)
 	# field_set = {}
 
 
 class QuestionTagAdmin(admin.ModelAdmin):
-	list_display = ('name', 'test') # add  get_3_questions
+	list_display = ('name',  'test', 'get_3_questions') # add  get_3_questions
 	search_fields = ('name',)
+	# exclude = ['test']
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Test, TestAdmin)

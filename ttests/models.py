@@ -6,6 +6,10 @@ import os
 # для валидации полей
 from django.core.exceptions import ValidationError
 # from .validators import validate_even
+# from django.core.exceptions import ...
+from .validators import min_length_1
+
+from .utils import list_from_dict_values
 
 # ------------------
 
@@ -93,7 +97,7 @@ class Test(models.Model):
 		# print(filename)
 		return 'user_{0}/{1}'.format(self.author.id, filename)
 
-	title = models.CharField(max_length=140, verbose_name='заголовок')
+	title = models.CharField(max_length=140, verbose_name='название теста')
 	description = models.TextField(max_length=3500, blank=True, null=True,
 					verbose_name='описание',
 					help_text='заполнять не обязательно, но это поможет\
@@ -112,16 +116,17 @@ class Test(models.Model):
 					verbose_name='теги для теста',
 					help_text='Это позволит быстрее найти тест среди других.')
 	create_date = models.DateTimeField(auto_now=False, auto_now_add=True,
-	 				db_index=True)
+	 				db_index=True, verbose_name='дата создания')
 	update_date = models.DateTimeField(auto_now=True, auto_now_add=False,
-	 				db_index=True)
+	 				db_index=True, verbose_name='последнее редактирование')
 	testing_time = models.DurationField(null=True, blank=True,
 					verbose_name='время тестирования',
 					help_text='в формате ЧЧ:ММ:СС')
 	show_q_number = models.PositiveSmallIntegerField(null=True, blank=True,
 					verbose_name='количество вопросов',
 					help_text='пользователю будет показано столько вопросов.\
-					В действительности тест может иметь больше вопросов')
+					В действительности тест может иметь больше вопросов',
+					validators=[min_length_1])
 	is_shuffle_q = models.BooleanField(default=False,
 					verbose_name='перемешать вопросы?',
 					help_text='вопросы будут идти не по порядку')
@@ -167,7 +172,7 @@ class QuestionTag(models.Model):
 							в конце теста, если он неправильно ответит на вопросы\
 							с этим тегом')
 	questions = models.ManyToManyField(to='Question', related_name='tags',
-							verbose_name='для вопроса')
+							verbose_name='для вопроса', blank=True)
 	# убрать поле из админки, сделать автоматическое заполнение
 	# наверно с помощью "сигналов"
 	# а вообще нужно ли оно? (если тест удалить, то его вопросы, а значит и теги
@@ -175,6 +180,11 @@ class QuestionTag(models.Model):
 	# не было ситуации, что один и тот же тег применялся к разным тестам с вопросами)
 	test = models.ForeignKey(to='Test', on_delete=models.CASCADE,
 							related_name='questions_tags')
+
+	def get_3_questions(self):
+		q3 = list( self.questions.values('text')[:3] )
+		dict_values = list_from_dict_values(q3, 'text')
+		return dict_values.get('text', None)
 
 	def __str__(self):
 		if len(self.name) < 70:
@@ -199,9 +209,11 @@ class Question(models.Model):
 	 						null=True, verbose_name='картинка для вопроса')
 	point = models.PositiveSmallIntegerField(default=1,
 							verbose_name='баллы за верный ответ',)
-							# validators=[validate_even])
 	explanation = models.TextField(blank=True, max_length=1000,
 							verbose_name='пояснение ответа')
+	# штраф за неверно отвеченный ответ
+	# fine = 	models.PositiveSmallIntegerField(blank=True, null=True,
+	# 			help_text='сколько баллов будет вычтено за неправильный ответ')
 
 	def count_answers(self):
 		return self.answers.count()

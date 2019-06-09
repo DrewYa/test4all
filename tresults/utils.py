@@ -59,6 +59,21 @@ def time_testing(start=None, complition=None):
 		return hours, minutes, seconds
 	return None
 
+"""
+def clear_all_testings_score_of_testings_result(testing_result=None):
+	'''obj TestingResult -> QuerySet TestingResult.testings.all()'''
+	if testing_result == None:
+		return None
+	tr = testing_result
+	testings = tr.testings.all()
+	# testings.update(score=place_score(0, 0))
+	for ting in testings:
+		# вместо 1 должен браться максимальный балл из соотв. поля соотв. вопроса
+		ting.score = place_score(0, 1 )
+		ting.save()
+	return testings
+"""
+
 def fill_empty_q_and_processing_results(user=None, test=None, questions=None,
 										start=None, complition=None):
 	'''\
@@ -74,6 +89,12 @@ def fill_empty_q_and_processing_results(user=None, test=None, questions=None,
 	u = User.objects.get(id=user)
 	t = Test.objects.get(id=test)
 	questions = Question.objects.filter(id__in=questions) # QuerySet
+
+	# если пользователь уже проходил тест, а в этот раз досрочно завершил
+	# тестирование, то все предыдущие результаты будут удалены
+	# tr = TestingResult.objects.filter(user=u, test=t).last() # QuerySet or None
+	# if tr:
+	# 	clear_all_testings_score_of_testings_result(tr)
 
 	list_testings = []
 	max_points = 0

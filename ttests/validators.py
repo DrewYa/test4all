@@ -1,5 +1,10 @@
 from django.core.exceptions import ValidationError
 
+def min_length_1(value):
+	'''Проверка на то, что минимальное значение должно быть 1'''
+	if value < 1:
+		raise ValidationError('Минимальное значение должно быть 1')
+
 def validate_even(value):
 	'''Проверка на четность числа.'''
 	if value % 2 != 0:
