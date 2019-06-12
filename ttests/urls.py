@@ -14,6 +14,9 @@ urlpatterns = [
 	 		name='testing_url'),
 	path('note-cookies-important', views.note_cookies_important,
 			name='note_cookies_important_url'),
+	path('login', views.login, name="login_url"),
+	path('logout', views.logout, name="logout_url"),
+	path('register', views.register, name="register_url"),
 
 	path('show_static', views.show_static_img),
 	path('get_value', views.get_value_from_form),

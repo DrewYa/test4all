@@ -15,7 +15,7 @@
 		<meta name="application-name" content="test4all">
 		<meta name="generator" content="Jekyll v3.8.5">
 		{% block meta %}{% endblock %}
-		<title>Test4all {% block title %}{% if title %} - {{ title }}{% endif %}
+		<title>Test4all {% block title %}{% if title %} - {{ title }}{% if user.username %} | пользователь {{ user.username }}{% endif %}{% endif %}
 		{% endblock %}</title>
 		<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
 		<!--  -->
@@ -37,7 +37,8 @@
 	<body>
 
 		<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light"> -->
-		<nav class="navbar navbar-light navbar-expand-lg" style="background-color: #e3f2fd;">
+		<!-- от navbar-expand-md зависит когда будет сворачиваться меню -->
+		<nav class="navbar navbar-light navbar-expand-md" style="background-color: #e3f2fd;">
 			<a class="navbar-brand" href="{% url 'ttests:test_list_url' %}"> <h1 style="color: #333; font-size: 1.75rem;">Test4all</h1> </a>
 
 <!-- <h1 style="color: #333; font-size: 1.75rem;">Test4all</h1> -->
@@ -51,7 +52,7 @@
 			<div class="collapse navbar-collapse" id="navbarSupportedContent"> <!-- class= "show" -->
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item"> <!-- class= active -->
-						<a class="nav-link" href="{% url 'ttests:tag_list_url' %}">Все теги<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{% url 'ttests:tag_list_url' %}">все&nbsp;теги</span></a>
 					</li>
 <!--
 					<li class="nav-item">
@@ -72,23 +73,82 @@
 						</div>
 					</li>
 -->
-					<li class="nav-item">
-						<a class="nav-link " href="/admin/" tabindex="-1" aria-disabled="true">Aдминка</a> <!-- class="disabled" -->
+					{% if user.username %}
+					<li class="nav-item mr-2">
+						<a class="nav-link " href="/admin/" tabindex="-1" aria-disabled="true">мои&nbsp;тесты</a> <!-- class="disabled" -->
 					</li>
+					{% endif %}
 				</ul>
-	<!-- action='/' чтобы запрос делался на вьюшки, у которой путь '/' -->
-				<form method='post' class="form-inline my-2 my-lg-0"
+
+				<!-- <form method='post' class="form-inline my-2 my-sm-2 mr-3"
 					action="/">
 					{% csrf_token %}
-					<input class="form-control mr-sm-2" type="search" placeholder="Поиск по тестам" aria-label="Search" name="search" size="40" tabindex="1">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit" tabindex="2">Найти</button>
+					<input class="form-control mr-sm-2" type="search" placeholder="Поиск по тестам" aria-label="Search" name="search" size="42" tabindex="1">
+					<button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit" tabindex="2">найти</button>
+				</form> -->
+
+				<form method="post" class="form-inline my-2 my-sm-2 mr-3"
+					action="/" >
+					{% csrf_token %}
+					<div class="input-group">
+						<input class="form-control" type="search" placeholder="Поиск по тестам" aria-label="search" name="search" size="47" aria-describedby="btn-search">
+						<div class="input-group-append">
+						<button class="btn btn-outline-success" type="submit" id="btn-search" tabindex="2">найти</button>
+						</div>
+					</div>
 				</form>
-<!-- считывание значений из тэгов input происходит по их имени (значению атрибута name)
-http://htmlbook.ru/html/INPUT/TYPE http://programmerbook.ru/html/input/type/search/
-input с типом search html -->
+
+
+				{% if user.is_active %}
+				<div class="">
+					<a class="btn btn-outline-primary mt-2 mt-md-0"
+						href="{% url 'ttests:logout_url' %}"
+						title="пользователь: {{ user.username }}">выход</a>
+				</div>
+				{% else %}
+				<!-- <div class="">
+					<a class="btn btn-outline-primary mt-2 mt-md-0"
+						href="{% url 'ttests:login_url' %}">вход</a>
+				</div> -->
+				<button class="btn btn-outline-primary" data-toggle="collapse"
+						type="button" data-target="#loginEmbeded"
+					aria-expanded="false" aria-controls="collapseExample">
+				вход
+				</button>
+				{% endif %}
 
 			</div>
 		</nav>
+
+		{% if not user.is_active %}
+		<div class="collapse container mt-4 " id="loginEmbeded">
+			<form class="" action="{% url 'ttests:login_url' %}" method="post">
+			{% csrf_token %}
+			<div class="form-row">
+
+			<div class="offset-md-2 col-md-3 mb-2">
+			<input class="form-control form-control-sm" type="text" id="UNorUE"
+					name="usernameoremail"  placeholder="имя пользователя">
+			</div>
+
+			<div class="col-md-3 mb-2">
+			<input class="form-control form-control-sm" type="password" id="UP"
+					name="userpassword" placeholder="пароль">
+			</div>
+
+			<div class="col-md-3">
+			<input class="btn btn-sm btn-outline-primary" type="submit" value="войти">
+			<a class="btn-sm ml-2 float-right btn-outline-secondary link btn" href="{% url 'ttests:register_url' %}">регистрация</a>
+			</div>
+
+			</div>
+			</form>
+		<hr>
+		</div>
+		{% endif %}
+
+
+
 
 		<div class="container mt-3">
 			<div class="row">
@@ -102,6 +162,7 @@ input с типом search html -->
 
 		{% block scripts %}
 		{% endblock %}
+
 
 	</body>
 </html>

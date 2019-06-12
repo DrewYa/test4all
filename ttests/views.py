@@ -9,11 +9,17 @@ from django.views.generic import View
 from django.core import signing
 from django.db.models import Q, Count # , F
 
+# from django.contrib.auth import login, authenticate, logout
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from .forms import CustomUserCreationForm
+
 from test4all.settings import SECRET_KEY ###
 
 from tresults.models import Testing, TestingAssocAnswer, TestingAnswer, TestingResult
 from .models import Test, TestTag, Question,   User
-from ttests.utils import place_score, place_json_score
+from ttests.utils import place_score, place_json_score, add_to_simple_users_group
 
 FINISH_TEST_AFTER_LAST_QUESTION = True
 COOKIES_ENCRYPT_KEY_FOR_VALUES = 'secret key' # for secda
@@ -134,6 +140,7 @@ def show_question(request, question_id): # , author_id
 # если для теста не определено вопросов, то не показывать его пользователям
 # для прохождения
 class TestDetail(View):
+	# @login_required
 	def get(self, request, id):
 		test = get_object_or_404(Test, Q(id=id) & Q(is_published=True) )
 		# ### сюда бы тоже добавить фильтраци чтобы показывать
@@ -444,9 +451,52 @@ class AnswerTheQuestion(View):					  		# testing_url
 		response.set_cookie(key='testing_a_dict', value=secda)
 		return response
 
-
+# @login_required(login_url=reverse('ttests:login_url'))
+# @login_required()
 def test_results(request, id):
 	return redirect(reverse('tresults:test_results_url',kwargs={'test_id': id}))
+
+def login(request):
+	context = {}
+	if request.method == 'POST':
+		username = request.POST.get('usernameoremail', '')
+		password = request.POST.get('userpassword', '')
+		user = auth.authenticate(password=password, username=username)
+		if user is not None:
+			if user.is_active:
+				print('user verified and authenticated successfully')
+				auth.login(request, user=user)
+				return redirect(reverse('ttests:test_list_url'))
+			else:
+				# почему-то не работает
+				print('password is valid, but account was been disabled')
+				context['msg'] = 'ваш профиль был отключен'
+		else:
+			print('the username or password were incorrect, try to again')
+			context['msg'] = 'неверное имя или пароль'
+	return render(request, 'ttests/login.html', context)
+
+def logout(request):
+	# user = auth.get_user(request)
+	auth.logout(request)
+	return redirect(reverse('ttests:test_list_url'))
+
+def register(request):
+	context = { 'form' : CustomUserCreationForm() }
+	if request.method == 'POST':
+		newuser_form = CustomUserCreationForm(request.POST)
+		if newuser_form.is_valid():
+			newuser_form.save()
+			user = auth.authenticate(
+							username=newuser_form.cleaned_data['username'],
+							password=newuser_form.cleaned_data['password2'])
+			add_to_simple_users_group(user)
+			auth.login(request, user)
+			return redirect(reverse('ttests:test_list_url'))
+		else:
+			context['form'] = newuser_form
+	return render(request, 'ttests/register.html', context)
+
 
 # ------------------------------------------------------------------
 

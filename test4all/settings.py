@@ -187,3 +187,5 @@ MEDIA_URL = '/media/' ###
 # SESSION_FILE_PATH = None
 # SESSION_SAVE_EVERY_REQUEST = False
 # SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+
+LOGIN_URL = '/login'

@@ -1,0 +1,66 @@
+{% extends 'ttests/base.html' %}
+
+{% block content %}
+
+
+<div class="">
+
+<div class="card mt-5 mb-3 border border-">
+<div class="card-header">
+	<h2 class="text-center ">Регистрация</h2>
+</div>
+<div class="card-body align-self-center col-md-7 col-lg-6">
+<div class="form-group "> <!-- form-row  --><!-- .is-valid .is-invalid -->
+
+
+<!-- <form class="" action="" method="post">
+	{% csrf_token %}
+	<label class="form-control-label h6" for="UNorUE">Имя пользователя</label><br>
+	<input class="form-control" type="text" name="usernameoremail" id="UNorUE"><br>
+
+	<label class="form-control-label h6" for="UP">Пароль</label><br>
+	<input class="form-control" type="password" name="userpassword" id="UP"><br>
+
+	<label class="form-control-label h6" for="UP">Пароль еще раз</label><br>
+	<input class="form-control" type="password" name="userpassword" id="UP"><br>
+
+	<input class="btn btn-block btn-outline-primary " type="submit" value="зарегистрироваться">
+</form> -->
+
+<style>
+	form > ul  {
+		margin: 3px 3px .5rem 3px;
+		padding: 0;
+		color: red;
+		list-style-type: none;
+		text-align: center;
+	}
+</style>
+
+<form class="" action="" method="post">
+	{% csrf_token %}
+	 {{ form.as_p }}
+	<!-- {{ form.username.label }}<br>
+	{{ form.username }}<br>
+	{{ form.password1.label }}<br>
+	{{ form.password1 }}<br>
+	{{ form.password2.label }}<br>
+	{{ form.password2 }}<br>
+	{% for msg in form.error_messages %}
+		<p>{{ msg }}</p>
+	{% endfor %} -->
+	<input class="btn btn-block btn-outline-success" type="submit" value="зарегистрироваться">
+</form>
+
+
+</div>
+</div>
+</div>
+
+</div>
+
+
+
+{% endblock %}
+
+{# {{ form.username|addclass:'form-control' }} #}

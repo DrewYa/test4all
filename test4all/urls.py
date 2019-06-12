@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from ttests import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+	path('admin/login/', views.login),		# go to custoum login page
+	path('admin/logout/', views.logout),	# go to custom logout page
+	path('admin/', admin.site.urls),
 	path('', include('ttests.urls')),
 	path('results/', include('tresults.urls')),
 ]

@@ -178,9 +178,45 @@ class QuestionForm(form.ModelForm):
 	}
 """
 
-
-
 # https://ru.stackoverflow.com/questions/625920/Как-сделать-валидацию-формы-в-django-на-основе-модели
 
 # from djangocms_admin_style import
 # from djangosecure import
+
+# -------------------
+
+from django.contrib.auth.forms import (UserCreationForm, User,
+									UsernameField, SetPasswordForm)
+# UserCreationForm,AuthenticationForm,PasswordChangeForm,
+# UserChangeForm,PasswordResetForm,SetPasswordForm,
+# AdminPasswordChangeForm,User,ReadOnlyPasswordHashWidget
+
+class CustomUserCreationForm(UserCreationForm):
+	def __init__(self, *args, **kwargs):
+		super(UserCreationForm, self).__init__(*args, **kwargs)
+		self.fields['username'].widget.attrs = {'class': 'form-control'}
+		self.fields['username'].help_text = ''
+		self.fields['password1'].widget.attrs = {'class': 'form-control'}
+		self.fields['password2'].widget.attrs = {'class': 'form-control'}
+		self.fields['password2'].help_text = ''
+
+	# class Meta:
+		# 	model = User
+		# fields = ("username", "password1", 'password2')
+		# 	# field_classes = {
+		# 	# 	'username': UsernameField,
+		# 	# 	'password1': SetPasswordForm,
+		# 	# 	'password2': SetPasswordForm,
+		# 	# }
+		# 	widgets = {
+		# 		'username': forms.TextInput(attrs={'class': 'form-control'}),
+		# 		'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
+		# 		'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+		# 		'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+		# 	}
+
+
+# http://kmv-it.ru/blog/django-registraciya/
+
+
+# https://www.youtube.com/watch?v=6Qp7ikZrzjY
