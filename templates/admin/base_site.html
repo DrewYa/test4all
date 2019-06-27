@@ -2,6 +2,13 @@
 
 {% block title %}Test4all | {{ title }}{% endblock %}
 
+{% load staticfiles %}
+{% block extrastyle %}
+<link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
+<link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
+{% endblock %}
+
+
 {% block branding %}
 <h1 id="site-name"><a href="{% url 'admin:index' %}">Test4all</a></h1>
 {% endblock %}

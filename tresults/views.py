@@ -4,6 +4,8 @@ from django.views.generic import View
 from django.core import signing
 from django.urls import reverse
 
+from django.contrib import auth
+
 from .models import TestingResult
 
 from datetime import datetime
@@ -29,7 +31,8 @@ def processing_results(request):
 	во время прохождения теста; парсит эти результаты и заносит в БД. После
 	чего перенаправляет на страницу результатов тестирования.
 	'''
-	user_id = 3
+	# user_id = 3 					########
+	user = auth.get_user(request)
 
 	test_id = request.COOKIES.get('test_id')
 	secd_q_id = request.COOKIES.get('testing_q_dict')
@@ -56,7 +59,7 @@ def processing_results(request):
 	print('test time     ', test_time)
 	print('list_q_id     ', list_q_id)
 
-	tresult = fill_empty_q_and_processing_results(user=user_id,
+	tresult = fill_empty_q_and_processing_results(user=user.id,
 	 			test=test_id, questions=list_q_id,
 				start=time_start, complition=time_complition)
 	# tresult = TestingResult.objects.filter(user__id=user_id,
@@ -102,11 +105,12 @@ def processing_results(request):
 
 
 def test_results(request, test_id):
-	user_id = 3
+	# user_id = 3									######
+	user = auth.get_user(request)
 	# result = get_list_or_404(TestingResult,
 	# 						user__id=user_id, test__id=test_id).last()
 	tresult = TestingResult.objects.filter(
-							user__id=user_id, test__id=test_id).last()
+							user__id=user.id, test__id=test_id).last()
 	if not tresult:
 		raise Http404
 

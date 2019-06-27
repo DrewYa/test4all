@@ -44,11 +44,11 @@
 		{% endif %}
 
 	  </ul>
+	  {% if user.is_authenticated %}
 	  <div class="card-body">
 	    <!-- <a href="#" class="card-link btn btn-outline-primary">Пройти тест</a> -->
-
-		<form class="" action="" method="post">
 		<p>
+		<form action="" method="post">
 			{% csrf_token %}
 			<input type="submit" value="Пройти тест"
 					class="card-link btn btn-outline-primary">
@@ -58,10 +58,10 @@
 			{% if is_exist_results %}
 			<a href="{% url 'ttests:test_results_url' id=test.id %}" class="card-link btn btn-outline-dark" style="float: right">результаты</a>
 			{% endif %}
-		</p>
 		</form>
-
+		</p>
 	  </div>
+	  {% endif %}
 	</div>
 
 {% endblock %}

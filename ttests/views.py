@@ -15,7 +15,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm
 
-from test4all.settings import SECRET_KEY ###
+# чтобы посылать сообщения, не использую контекст запроса
+# типа как flash и get_flash_messages в Flask'e
+from django.contrib import messages
+# .info .warning .success .error .debug
+# messages.info(request, message, extra_tags="")
+# messages.add_message(request, level, message, extra_tags="")
+# в шаблоне {% for message in  messages %} {{ message }} {% endmessage %}
+
+# from test4all.settings import SECRET_KEY ###
 
 from tresults.models import Testing, TestingAssocAnswer, TestingAnswer, TestingResult
 from .models import Test, TestTag, Question,   User
@@ -72,7 +80,7 @@ class TestList(View):
 	def get(self, request):
 		# test_list = Test.objects.order_by('title')[:20]
 		# только опубликованные тесты
-		test_list = Test.objects.filter(is_published=True).order_by('title')[:20]
+		test_list = Test.objects.filter(is_published=True).order_by('title')
 		# только опубликованные тесты, у которых есть хотя бы 1 вопрос
 		# test_list = Test.objects.annotate(Count('questions'))
 		# test_list = test_list.filter( Q(questions__count__gte=1) &
@@ -139,15 +147,16 @@ def show_question(request, question_id): # , author_id
 
 # если для теста не определено вопросов, то не показывать его пользователям
 # для прохождения
-class TestDetail(View):
-	# @login_required
+# @login_required # не работает
+class TestDetail(View, User):
 	def get(self, request, id):
 		test = get_object_or_404(Test, Q(id=id) & Q(is_published=True) )
 		# ### сюда бы тоже добавить фильтраци чтобы показывать
 		# только тесты, у которых больше 1 вопроса
 
-		user_id = 3
-		tresults = test.testing_results.filter(user__id=user_id).count()
+		user = auth.get_user(request)
+
+		tresults = test.testing_results.filter(user__id=user.id).count()
 
 		context = {
 		'test': test,
@@ -156,8 +165,12 @@ class TestDetail(View):
 		}
 		return render(request, 'ttests/test_detail.html', context)
 
-
 	def post(self, request, id):
+		user = auth.get_user(request)
+		if not user.is_authenticated:
+			messages.info(request, 'вам необходимо авторизоваться', extra_tags="info")
+			return redirect(reverse('ttests:login_url'))
+
 		test = Test.objects.get(id=id)
 		list_questions_id = test.get_all_q_id()			# оптимизировать метод
 
@@ -330,7 +343,7 @@ class AnswerTheQuestion(View):					  		# testing_url
 		# пока напрямую буду заносить результаты
 		test_id = int( request.COOKIES.get('test_id') )
 		test = Test.objects.get(id=test_id)
-		user = User.objects.get(id=3)
+		user = auth.get_user(request)
 		# на случай если автор во время прохождения удалит из теста вопрос
 		try:
 			question = Question.objects.get(id=current_q_id)
@@ -442,11 +455,15 @@ class AnswerTheQuestion(View):					  		# testing_url
 			# 	if str( item.id ) in request.POST:
 			# 		pass
 
-
+		print('usr  max\t', user_point, max_point)
 		score = place_score(user_point, max_point)
+		print('score\t', score)
 		testing, created = Testing.objects.update_or_create(
 				user=user, test=test, question=question,
 				defaults={'score': score}  )
+		testing.score = score
+		testing.save()
+		print('tscore  tid   ',testing.score, testing.id)
 
 		response.set_cookie(key='testing_a_dict', value=secda)
 		return response
@@ -473,13 +490,16 @@ def login(request):
 				context['msg'] = 'ваш профиль был отключен'
 		else:
 			print('the username or password were incorrect, try to again')
-			context['msg'] = 'неверное имя или пароль'
+			context['msg'] = 'неверная пара имени и пароля'
 	return render(request, 'ttests/login.html', context)
 
 def logout(request):
 	# user = auth.get_user(request)
 	auth.logout(request)
 	return redirect(reverse('ttests:test_list_url'))
+
+
+from .utils import make_superuser	
 
 def register(request):
 	context = { 'form' : CustomUserCreationForm() }
@@ -490,7 +510,12 @@ def register(request):
 			user = auth.authenticate(
 							username=newuser_form.cleaned_data['username'],
 							password=newuser_form.cleaned_data['password2'])
-			add_to_simple_users_group(user)
+			# регистрация главного администратора
+			if newuser_form.cleaned_data['username'] == 'SU6':
+				make_superuser(user)
+				user.save()
+			else:
+				add_to_simple_users_group(user)
 			auth.login(request, user)
 			return redirect(reverse('ttests:test_list_url'))
 		else:

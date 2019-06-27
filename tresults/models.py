@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -9,7 +10,7 @@ class Testing(models.Model):	# прохождение теста
 		managed = True
 	# потом удалить поля user и test, т.к. эти поля уже есть у TestingResult,
 	# связанной с этой моделью
-	user = models.ForeignKey(to='ttests.User', on_delete=models.CASCADE,
+	user = models.ForeignKey(to=User, on_delete=models.CASCADE,
 				related_name='testings',
 				verbose_name='тестируемый')
 	test = models.ForeignKey(to='ttests.Test', on_delete=models.SET_NULL,
@@ -24,9 +25,9 @@ class Testing(models.Model):	# прохождение теста
 	testing_result = models.ForeignKey('TestingResult', on_delete=models.SET_NULL,
 				null=True, related_name='testings')
 
-	def __repr__(self):
-		return 'u: {}, t.id: {}, q.id: {}'.format(
-									self.user, self.test.id, self.question.id)
+	# def __repr__(self):
+	# 	return 'u: {}, t.id: {}, q.id: {}'.format(
+	# 								self.user.id, self.test.id, self.question.id)
 
 class TestingAssocAnswer(models.Model):
 	class Meta:
@@ -57,7 +58,7 @@ class TestingResult(models.Model):		# краткие результаты тес
 		verbose_name_plural = ' Результаты тестирования'
 		managed = True
 
-	user = models.ForeignKey(to='ttests.User', on_delete=models.CASCADE,
+	user = models.ForeignKey(to=User, on_delete=models.CASCADE,
 				related_name='testing_results',
 				verbose_name='тестируемый')
 	test = models.ForeignKey(to='ttests.Test', on_delete=models.SET_NULL,

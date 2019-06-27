@@ -15,7 +15,7 @@
 		<meta name="application-name" content="test4all">
 		<meta name="generator" content="Jekyll v3.8.5">
 		{% block meta %}{% endblock %}
-		<title>Test4all {% block title %}{% if title %} - {{ title }}{% if user.username %} | пользователь {{ user.username }}{% endif %}{% endif %}
+		<title>Test4all {% block title %}{% if title %} - {{ title }}{% if user and user.username %} | пользователь {{ user.username }}{% endif %}{% endif %}
 		{% endblock %}</title>
 		<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
 		<!--  -->
@@ -73,7 +73,7 @@
 						</div>
 					</li>
 -->
-					{% if user.username %}
+					{% if user and user.username and user.is_staff %}
 					<li class="nav-item mr-2">
 						<a class="nav-link " href="/admin/" tabindex="-1" aria-disabled="true">мои&nbsp;тесты</a> <!-- class="disabled" -->
 					</li>
@@ -99,7 +99,7 @@
 				</form>
 
 
-				{% if user.is_active %}
+				{% if user and user.is_active %}
 				<div class="">
 					<a class="btn btn-outline-primary mt-2 mt-md-0"
 						href="{% url 'ttests:logout_url' %}"

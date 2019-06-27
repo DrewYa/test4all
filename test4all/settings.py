@@ -189,3 +189,8 @@ MEDIA_URL = '/media/' ###
 # SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 LOGIN_URL = '/login'
+
+try:
+	from test4all.local_settings import *
+except ImportError:
+	pass

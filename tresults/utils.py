@@ -4,6 +4,8 @@ import json
 from datetime import datetime
 from re import compile as re_compile, findall as re_findall
 
+from django.contrib.auth.models import User
+
 # from django import utils
 # from django.utils import dateparse
 

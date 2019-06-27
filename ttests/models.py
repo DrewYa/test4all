@@ -6,10 +6,11 @@ import os
 # для валидации полей
 from django.core.exceptions import ValidationError
 # from .validators import validate_even
-# from django.core.exceptions import ...
 from .validators import min_length_1
 
 from .utils import list_from_dict_values
+
+from django.contrib.auth.models import User
 
 # ------------------
 
@@ -26,28 +27,16 @@ from .utils import list_from_dict_values
 # Create your models here.
 
 
-class User(models.Model):											## del model
-	class Meta:
-		managed = True
-	name = models.CharField(max_length=100)
-	# email
-	# password_hash
-	# about_me
-
-	def  __str__(self):
-		return self.name
-
-
 class TestTag(models.Model):
 	class Meta:
 		verbose_name = 'Тег теста'
 		verbose_name_plural = 'Теги теста'
 		ordering = ('title',)
-		managed = True # позволяет django удалять таблицу из БД
+		# позволяет django удалять таблицу из БД
+		managed = True
 
 	title = models.CharField(max_length=50, unique=True,
 							verbose_name='название')
-	# убрать из админки, сделать автозаполняемым через slugify
 	slug = models.SlugField(max_length=50, unique=True,
 							verbose_name='ссылка',   blank=True)
 
@@ -85,8 +74,8 @@ class Test(models.Model):
 
 	'''
 	class Meta:
-		verbose_name = 'Тест'
-		verbose_name_plural = 'Тесты'
+		verbose_name = ' Тест'
+		verbose_name_plural = ' Тесты'
 		# ordering = ('title',)
 		managed = True
 
@@ -109,8 +98,7 @@ class Test(models.Model):
 					help_text='после публикации тест станет доступен другим\
 					пользователям для прохождения. После публикации\
 					не желательно изменять тест (только удалять)')
-	# убрать и добавить нормальную связь с пользователями
-	author = models.ForeignKey('User', on_delete=models.SET_NULL, null=True,
+	author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
 					related_name='tests' )
 	tags = models.ManyToManyField(to='TestTag', related_name='tests', blank=True,
 					verbose_name='теги для теста',
@@ -240,13 +228,6 @@ class Question(models.Model):
 		# а если там ассоциативные ответы - установлен ли хотябы для одного из
 		# них необязательная "right_side"
 
-
-	# def ids_answers(self):
-	# 	return self.answers
-
-	# ###
-	# def get_absolute_url(self):
-	# 	return reverse('ttests:testing_url', kwargs={'question_id': self.id})
 	def get_absolute_url(self):
 		return reverse('ttests:show_question_url', kwargs={'question_id': self.id})
 
@@ -307,9 +288,7 @@ class AssociateAnswer(models.Model):
 
 
 
-
-
-# ----------- сигналы -------------
+# --------------- сигналы ----------------
 
 from django.db.models.signals import pre_save
 from transliterate import translit
@@ -341,56 +320,10 @@ def pre_save_test_tag_slug(sender, instance, *args, **kwargs):
 pre_save.connect(receiver=pre_save_test_tag_slug, sender=TestTag)
 # теперь если мы зайдем в модели TestTag у поля slug нужно указать blank=True
 
-
 # def pre_save_question_tag(sender, instance, *args, **kwargs):
 # 	if not instance.test:
 # 		instance.test = instance.questions.all()[0].test.id
 # pre_save.connect(reveiver=pre_save_question_tag, sender=QuestionTag)
-
-
-
-# ===========================================================================
-# модели ниже вставить в отдельное приложение, которое будет резализовывать
-# логику по анализу результатов тестирования
-'''
-class Testing(models.Model):
-	class Meta:
-		pass
-
-	user = models.ForeignKey  # on_delete=models.CASCADE
-	test = models.ForeignKey(to='django.ttests.models.Test', on_delete=models.SET_NULL)
-	question = models.ForeignKey  # on_delete=models.SET_NULL
-	score = models.CharField
-
-class TestingAssocAnswer(models.Model):
-	class Meta:
-		pass
-
-	testing = models.ForeignKey(to='Testing', on_delete=models.CASCADE)
-	answer_left_id = models.IntegerField
-	answer_right_id = models.IntegerField
-
-class TestingAnswer(models.Model):
-	class Meta:
-		pass
-
-	testing = models.ForeignKey(to='Testing', on_delete=models.CASCADE)
-	answer_id = models.IntegerField
-	answer_text = models.TextField
-
-
-class TestResult(models.Model):
-	class Meta:
-		pass
-
-	user = models.ForeignKey  # on_delete=models.CASCADE
-	test = models.ForeignKey  # on_delete=models.SET_NULL
-	result = models.PositiveSmallIntegerField
-	date_complition = models.DateTimeField  # db_index=True
-	date_start = models.DateTimeField  # db_index=True
-	questions_tags = models.ForeignKey(to='django.ttests.models.QuestionTag',
-										on_delete=models.SET_NULL)
-'''
 
 
 # ======================================================================

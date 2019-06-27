@@ -1,4 +1,6 @@
+from django.contrib.auth.models import Group, Permission, User
 import json
+
 
 def extract_json_score(s=None):
 	''' s - str in format JSON;  return max_score (int), user_score (float)'''
@@ -52,8 +54,6 @@ def group_values_by_keys(ld=None, *args):
 	:args: - any keys that will try found in ld
 	return dict if format {key1: [...], key2: [...], ...}
 	as return values in the dict can be a single value or list of values
-	()
-
 	'''
 	if not ld:
 		return None
@@ -72,9 +72,6 @@ def group_values_by_keys(ld=None, *args):
 	return newd
 
 
-
-from django.contrib.auth.models import Group, Permission, User
-
 # user.get_all_permissions() - посмотреть все права пользователя
 def add_to_simple_users_group(user=None):
 	'''У пользователей есть право создавать тесты, есть доступ в админ-панель'''
@@ -91,6 +88,18 @@ def add_to_simple_users_group(user=None):
 		for perm in list(need_perms):
 			g.permissions.add(perm)
 	g.user_set.add(user)
+	# user.is_staff = True
+	user.save()
+	return True
+	
+def make_superuser(user=None):
+	if user is None:
+		return False
+	user.is_superuser = True
+	# флаг поставлен, так что права можно не добавлять никакие
+	all_perms = Permission.objects.all()
+	for perm in list(all_perms):
+		user.user_permissions.add(perm)
 	user.is_staff = True
 	user.save()
 	return True

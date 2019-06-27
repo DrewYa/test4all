@@ -21,24 +21,35 @@ class TestingAssocAnswerTabularInline(admin.TabularInline):
 	# max_num = 0
 
 # admin.TabularInline.formfield_overrides()
+@admin.register(Testing)
 class TestingAdmin(admin.ModelAdmin):
 	list_per_page = 50
-	list_display = ['question', 'test', 'user', 'score', 'id']
-	readonly_fields = ['user', 'test', 'question', 'score', 'id', 'testing_result']
+	list_display = ['question', 'test', 'user', 'score',] # 'id'
+	readonly_fields = ['user', 'test', 'question', 'score', 'testing_result'] # 'id'
 	search_fields = ['question__text', 'test__title']
 	inlines = [TestingAnswerTabularInline, TestingAssocAnswerTabularInline]
 
+class TestingTabularInline(admin.TabularInline):
+	model = Testing
+	extra = 0
+	max_num = 0
+	can_delete = False
+	fields = ['question', 'score']
+	readonly_fields = [ 'question', 'score']
+
+@admin.register(TestingResult)
 class TestingResultAdmin(admin.ModelAdmin):
 	list_per_page = 30
-	list_display = ['test', 'user', 'result', 'date_start', 'date_complition', 'id']
+	list_display = ['test', 'user', 'result', 'date_start', 'date_complition'] # 'id'
 	readonly_fields = ['user', 'test', 'result', 'questions_tags',
 						'date_start', 'date_complition'] # user
 	search_fields = ['test__title']
 	list_filter = ['test', 'date_complition'] # 'user'
+	inlines = [TestingTabularInline]
 
 
+# admin.site.register(Testing, TestingAdmin)
+# admin.site.register(TestingResult, TestingResultAdmin)
 
-admin.site.register(Testing, TestingAdmin)
-admin.site.register(TestingResult, TestingResultAdmin)
 # admin.site.register(TestingAnswer)
 # admin.site.register(TestingAssocAnswer)

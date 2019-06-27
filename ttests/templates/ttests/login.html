@@ -10,12 +10,21 @@
 	<h2 class="text-center ">Авторизация</h2>
 </div>
 <div class="card-body align-self-center col-md-7 col-lg-6">
-	<div class="form-group "> <!-- form-row  --><!-- .is-valid .is-invalid -->
+	<div class="form-group ">
+	<!-- form-row  --><!-- .is-valid .is-invalid -->
+	{% for msg in messages %}
+	<div class="alert alert-{{ msg.tags }} mb-3" role="alert">
+		{{ msg }}
+	</div>
+	{% endfor %}
+
+	{% if msg %}<p class="alert alert-danger text-center">{{ msg }}</p>{% endif %}
+
 	<form class="" action="" method="post">
 		{% csrf_token %}
 
 		<label class="form-control-label h6" for="UNorUE">Имя пользователя</label><br>
-		<input class="form-control" type="text" name="usernameoremail" id="UNorUE">
+		<input required class="form-control" type="text" name="usernameoremail" id="UNorUE">
 
 		<br>
 
@@ -24,13 +33,11 @@
 		<div class="input-group-prepend">
 			<div class="input-group-text">@</div>
 		</div> -->
-		<input class="form-control" type="password" name="userpassword" id="UP">
+		<input required class="form-control" type="password" name="userpassword" id="UP">
 		<!-- </div> -->
 		<br>
 
 		<input class="btn btn-block btn-outline-primary " type="submit" value="авторизоваться">
-
-		{% if msg %}<p class="text-danger text-center">{{ msg }}</p>{% endif %}
 
 	</form>
 	</div>
