@@ -1,39 +1,23 @@
+import os
+
 from django.db import models
 from django.db.models import Q
 from django.shortcuts import reverse
-import os
-
-# для валидации полей
-from django.core.exceptions import ValidationError
-# from .validators import validate_even
-from .validators import min_length_1
-
-from .utils import list_from_dict_values
-
 from django.contrib.auth.models import User
 
-# ------------------
+from django.core.exceptions import ValidationError
 
-# https://djbook.ru/rel1.9/topics/signals.html
-# from django.core.signals import .. # отправляются при нач. и оконч. http запроса
-# from django.db.signals import
-# отпрвл. до и после вызова м. save() модели; до и после вызоыва м.
-# delete() модели и QuerySet'a; после изменения ManyToManyField в модели;
-# начала и окончания http запроса
-# from django.db.models.signals import
-
-# ----------------
+from .validators import min_length_1
+from .utils import list_from_dict_values
 
 # Create your models here.
-
 
 class TestTag(models.Model):
 	class Meta:
 		verbose_name = 'Тег теста'
 		verbose_name_plural = 'Теги теста'
 		ordering = ('title',)
-		# позволяет django удалять таблицу из БД
-		managed = True
+		managed = True # позволяет удал. табл из БД
 
 	title = models.CharField(max_length=50, unique=True,
 							verbose_name='название')
@@ -46,21 +30,12 @@ class TestTag(models.Model):
 	def count_published_test(self):
 		return self.tests.filter(is_published=True).count()
 
-	# def clean(self):
-	# 	if self.objects.get(title__iexact=self.title):
-	# 		raise ValidationError('такой тег уже существует')
-
-	# def save(self, force_insert=False, force_update=False):
-	# 	self.title = self.title.lower()
-	# 	super(TestTag, self).save(force_insert, force_update)
-	# 	# self.full_clean(exclude=None, validate_unique=True)
-
 	def __str__(self):
 		return self.title
 
 
 class Test(models.Model):
-	'''\
+	'''
 	is_published - опубликован ли тест. После публикации автор не может изменять
 	тест, может только удалить.
 	update_date - показывает дату последнего обновления или дату дату публикации
@@ -71,7 +46,6 @@ class Test(models.Model):
 	ке их составления автором)
 	only_fully_correct - засчитывать только вопросы, на которые был дан 100%
 	верный ответ (для множеств. и ассоц. ответов)
-
 	'''
 	class Meta:
 		verbose_name = ' Тест'
@@ -80,10 +54,7 @@ class Test(models.Model):
 		managed = True
 
 	def user_directory_path(self, filename):
-		# filename будет браться при загрузке файла "само"
-		# запрашиваем у объекта пользователя, у которого запрашиваем id
-		# file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-		# print(filename)
+		# MEDIA_ROOT/user_<id>/<filename>
 		return 'user_{0}/{1}'.format(self.author.id, filename)
 
 	title = models.CharField(max_length=140, verbose_name='название теста')
@@ -123,7 +94,7 @@ class Test(models.Model):
 					help_text='засчитывать только полностью верные ответы\
 					(для вопросов с множественными и ассоциативными ответами)\
 					иначе будет вычислен балл для частично правильных ответов')
-	#  не создавать - будет браться из значения поля id для теста
+	# не создавать - будет браться из значения поля id для теста
 	# slug = models.SlugField
 
 	def get_absolute_url(self):
@@ -324,119 +295,3 @@ pre_save.connect(receiver=pre_save_test_tag_slug, sender=TestTag)
 # 	if not instance.test:
 # 		instance.test = instance.questions.all()[0].test.id
 # pre_save.connect(reveiver=pre_save_question_tag, sender=QuestionTag)
-
-
-# ======================================================================
-
-# желательно вначале в качестве первой мигарции создать пустую миграцию
-# https://djbook.ru/rel1.4/topics/migrations.html#data-migrations
-# это делается с помощью команды
-# python manage.py makemigrations --empty yourappname
-# --------------------------------------------------------------------
-# для создания сложных вопросов, нужна агрегация
-# https://docs.djangoproject.com/en/2.0/topics/db/aggregation/#filtering-on-annotations
-# --------------------------------------------------------------------------
-'''
-все же возможно сделать функцию для атрибута поля upload_to
-подробнее тут https://djbook.ru/rel1.4/topics/migrations.html#historical-models
-т.е. создаем ф. или м., который возвращает строку, в которой будет
-содержится путь к файлу. В то же время, эти функции должны быть созданы
-ДО миграции, и их нельзя будет удалять, пока миграции ссылаются на них.
-ПРИМЕР
-(! заметь, м. определен выше, чем его объект присваивается атрибуту upload_to)
-class MyModel(models.Model):
-
-def upload_to(self):
-    return "something dynamic"
-
-my_file = models.FileField(upload_to=upload_to)
-
-для default можно тоже в качестве значения укзаать ссылку на ф.
-
-------------------------------------------------------------------------
-
-для полей можно переопределить ошибки валидации
-https://djbook.ru/rel1.9/ref/models/fields.html#error-messages
-
-также у каждого типа полей может быть атрибут validators со списком валидаторов
-https://djbook.ru/rel1.9/ref/models/fields.html#validators
-
-------------------------------------------------------------------------
-
-https://djbook.ru/rel1.9/ref/validators.html#module-django.core.validators
-Валидатор проверяет поле по каким-либо критериям, если проверка не прошла, то
-вызывается ошибка ValidationError
-
-свои валидаторы можно созадть так:
-from django.core.validators import ValidationError
-
-def validate_even(value):
-    if value % 2 != 0:
-        raise ValidationError('%s is not an even number' % value)
-
-а к полю (полю любого типа) можно применить валидатор так:
-
-from django.db import models
-
-class MyModel(models.Model):
-    even_field = models.IntegerField(validators=[validate_even])
-
-кроме того, эти же валидаторы можно использовать для форм:
-
-from django import forms
-
-class MyForm(forms.Form):
-    even_field = forms.IntegerField(validators=[validate_even])
-
-
-[ надо попробовать с помощью валидаторов ограничить возможность для одного
-вопроса создать и "обычные" ответы и ассоциативные ответы ]
-
-
--------------------------------------------------------------------------
-https://djbook.ru/rel1.9/ref/models/fields.html#django.db.models.FileField.upload_to
-https://docs.djangoproject.com/en/1.10/ref/models/fields/#filefield
-Про поля FileField и ImageField, точнее их атрибут upload_to
-Он позволяет указать каталог (который будет внутри каталога MEDIA_ROOT), а также
-имя файла при его сохранении.
-
-1 способ.  Указать в качестве значения строку. Также поддерживается
-форматирование strftime(). Например:
-class MyModel(models.Model):
-    # file will be uploaded to MEDIA_ROOT/uploads
-    upload = models.FileField(upload_to='uploads/')
-    # or...
-    # file will be saved to MEDIA_ROOT/uploads/2015/01/30
-    upload = models.FileField(upload_to='uploads/%Y/%m/%d/')
-
-2 способ.  Написать ф. или м. и в upload_to передать ссылку на этот м./ф.
-он должен возвращать строку с путем для сохранения файла и необязательное имя
-файла. Папки нужно отделять прямыми слешами ( / ).
-Вызываемый объект должен принимать 2 обязательных аргумента (экземпляр модели
-и имя файла):
-instance - экземпляр модели, в которой определено поле FileField или ImageField.
-(внимание! В большинстве случаев объект еще не будет сохранен в базу данных,
-и при использовании AutoField, первичный ключ объекта может быть пустым)
-filename - оригинальное имя файла (его можно не использовать в самой ф./м.)
-Например:
-def user_directory_path(instance, filename):
-	# запрашиваем у объекта пользователя, у которого запрашиваем id
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'user_{0}/{1}'.format(instance.user.id, filename)
-
-class MyModel(models.Model):
-    upload = models.FileField(upload_to=user_directory_path)
-
-------------------------
-
-Как вывести файл, сохраненный с помощью FileField или ImageField:
-допустим есть модель MyModel, а у нее есть поле mug_shot=ImageField(...)
-тогда, можно получить URL к файлу в шаблоне используя:
-{{ instance_of_MyModel.mug_shot.url }}
-
-Если вам нужны название файла или его размер, используй атрибуты name и size
-а также path
-https://djbook.ru/rel1.9/topics/files.html
-тут же есть пример как можно переименовать сохраненный файл и про
-API django для работы с файлами
-'''
