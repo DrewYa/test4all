@@ -1,11 +1,11 @@
-
 <div class="form-row">
-	<div class="col-auto mr-5">
 	<!-- ans_r -->
+	<div class="col-auto mr-5">
 	{% for r in r_associate_answers %}
 		{% if r.right_side %}
 		<div class="form-group">
-			<select class="custom-select custom-select-sm mr-1 mb-1" name="usr_a_answer" style="width: 3.8em">
+			<select class="custom-select custom-select-sm mr-1 mb-1"
+			name="usr_a_answer" style="width: 3.8em">
 				<option selected value="0"></option>
 				{% for l in l_associate_answers %}
 				<option value="{{ l.id }}">{{ forloop.counter }}</option>
@@ -14,7 +14,6 @@
 			<span>{{ r.right_side }}</span>
 		</div>
 		{% else %}
-			<!-- не знаю что за баг, но здесь должно быть такое же количество "нулевых" вариантов, сколько вариантов в левой части. И даже это не гарантия -->
 			<select hidden name="usr_a_answer" >
 				<option selected value="0"></option>
 				{% for _ in l_associate_answers %}
@@ -25,8 +24,8 @@
 	{% endfor %}
 	</div>
 
-	<div class="col-auto mt-1">
 	<!-- ans_l -->
+	<div class="col-auto mt-1">
 	{% for l in l_associate_answers %}
 		<p class="mb-2"><span class="badge badge-secondary mr-2">{{ forloop.counter }}</span>
 			{{ l.left_side }}
@@ -34,124 +33,3 @@
 	{% endfor %}
 	</div>
 </div>
-
-
-
-
-
-{% comment %}
-<!-- ======================================================================== -->
-<form class="" action="" method="post">
-	{% csrf_token %}
-<div class="form-row">
-	<div class="col-sm-6">
-
-		{% for r in associate_answers %} <!-- ans_r -->
-		<div class="form-group">
-			<input list="variables" name="usr_a_answer {{ r.id }}" value="" size="3">
-			<span>{{ r.right_side }}</span>
-		</div>
-		{% endfor %}
-
-	</div>
-
-		<datalist class=""	id="variables">
-			{% for l in associate_answers %} <!-- ans_l -->
-			<option value="{{ forloop.counter }}"> {{ l.left_side }} -nothing- </option>
-			{% endfor %}
-		</datalist>
-
-
-	<div class="col-sm-6">
-
-		{% for l in associate_answers %} <!-- ans_l -->
-			<p><span class="badge badge-secondary mr-2">{{ forloop.counter }}</span>{{ l.left_side }}</p>
-		{% endfor %}
-
-	</div>
-
-</div>
-	<p class="mt-5">
-		<input type="reset" value="Очистить" class="btn btn-outline-secondary">
-		<input type="submit" value="Ответить" class="btn btn-primary"
-				style="float: right; clear: both">
-	</p>
-</form>
-<!-- ================================================================== -->
-{% endcomment %}
-{% comment %}
-<!-- ================================================= -->
-<form class="" action="" method="post">
-	{% csrf_token %}
-	<p>
-		<input list="variables" name="usr_a_answer" value="" size="3">
-		<span>сам текст (левая\правая часть 1)</span>
-	</p>
-	<p>
-		<input list="variables" name="usr_a_answer" value="" size="3">
-		<span>сам текст (левая\правая часть 2)</span>
-	</p>
-	<p>
-		<input list="variables" name="usr_a_answer" value="" size="3">
-		<span>сам текст (левая\правая часть 3)</span>
-	</p>
-	...
-
-	<datalist class=""	id="vatiables">
-		<option value="id1"> текст (правой\левой части 1)</option>
-		<option value="id2"> текст (правой\левой части 1)</option>
-		<option value="id3"> текст (правой\левой части 1)</option>
-		...
-	</datalist>
-
-	<p>[1 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №1</p>
-	<p>[2 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №2</p>
-	<p>[3 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №3</p>
-	...
-</form>
-<!-- ====================================================== -->
-антонимы:
-id-23 белый - черный
-id-24 хорошо - плохо
-id-25 сухо - сыро
-
-<form class="" action="" method="post">
-	<p>
-		<input list="variables" name="usr_a_answer" value="" size="3">
-		<span>белый</span>
-	</p>
-	<p>
-		<input list="variables" name="usr_a_answer" value="" size="3">
-		<span>сам текст (левая\правая часть 2)</span>
-	</p>
-	<p>
-		<input list="variables" name="usr_a_answer" value="" size="3">
-		<span>сам текст (левая\правая часть 3)</span>
-	</p>
-	...
-
-	<datalist class=""	id="vatiables">
-		<option value="id1"> текст (правой\левой части 1)</option>
-		<option value="id2"> текст (правой\левой части 1)</option>
-		<option value="id3"> текст (правой\левой части 1)</option>
-		...
-	</datalist>
-
-	<p>[1 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №1</p>
-	<p>[2 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №2</p>
-	<p>[3 вариант] пошли сами варианты ответа (т.е. левые части) сопоставление №3</p>
-	...
-</form>
-<!-- ====================================================== -->
-
-
-поля считываются в порядке следования их в html-доке сверху вниз
-поэтому установив для все
-input'ов одно и то же имя
-но для списка вариантов установив id-шники
-можно будет с сервера потом считать в каком порядке ...
-
-но для этого порядок вариантов для правой части должен на html
-следовать в соответствии с порядком их id из БД
-
-{% endcomment %}

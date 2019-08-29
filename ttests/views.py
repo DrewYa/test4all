@@ -1,78 +1,34 @@
 import json
 import random
 from datetime import datetime, timedelta
+
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.urls import reverse
 from django.http import Http404
-from django.views.generic import View
 from django.core import signing
-from django.db.models import Q, Count # , F
+from django.views.generic import View
+from django.db.models import Q, Count
 
-# from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CustomUserCreationForm
 
-# чтобы посылать сообщения, не использую контекст запроса
-# типа как flash и get_flash_messages в Flask'e
-from django.contrib import messages
-# .info .warning .success .error .debug
-# messages.info(request, message, extra_tags="")
-# messages.add_message(request, level, message, extra_tags="")
-# в шаблоне {% for message in  messages %} {{ message }} {% endmessage %}
-
-# from test4all.settings import SECRET_KEY ###
+# from test4all.settings import SECRET_KEY
 
 from tresults.models import Testing, TestingAssocAnswer, TestingAnswer, TestingResult
-from .models import Test, TestTag, Question,   User
-from ttests.utils import place_score, place_json_score, add_to_simple_users_group
+
+from .models import Test, TestTag, Question, User
+from .forms import CustomUserCreationForm
+from .utils import place_score, add_to_simple_users_group
 
 FINISH_TEST_AFTER_LAST_QUESTION = True
-COOKIES_ENCRYPT_KEY_FOR_VALUES = 'secret key' # for secda
+COOKIES_ENCRYPT_KEY_FOR_VALUES = 'secret key'   # for secda
 SALT_TO_ENCRYPT_VALUES_DICT_QUESTIONS_ID = None # for secda
-SIGNING_KEY_FOR_INDEX_ASSOC_ANSWERS = None #sign_idx_asa
-SALT_TO_SINGING = None
+SIGNING_KEY_FOR_INDEX_ASSOC_ANSWERS = None      #sign_idx_asa
 SALT_TO_SIGNING = None
-
-'''
-еще сделать:
-* в детальном описании к тесту - количество вопросов, если пользователь
-* запись пользовательских ответов во время тестирования
-* просмотр подробных результов тестирования
-* таймер обратного отсчета до завершения теста и автозавершение тестирования,
-  при истечении времени на тестирование
-* больше AJAX-запросов (для экономии трафика и скорости ответа)
-
-* очищать ненужные куки
-* пагинацию при выдаче списка всех тестов
-* страницу, где пользователь может посмотреть какие тесты он прошел
-  (наверно можно сделать на основе вьюшке test list)
-* страницу с описанием, как пользоваться сайтом
-* добавление к вопросу либо ассоциативных ответов, либо обычных (а не как сейчас)
-* если пользователь не добавил ни одного варианта ответа (никакого вида),
-  то при тестировании пропускать этот вопрос (redirect на следующий вопрос)
-* модель пользователей на основе django auth
-* регистрация новых пользователей
-* требование авторизации для доступа к опр. страницам
-* просмотр пользователями только тех сущностей всех моделей, которые создали они,
-  а не все имеющиеся, кроме тегов тестов
-* уникальный для каждого теста теги вопросов
-* приведение наименований тегов теста к нижнему регистру и проверка на
-  уникальность наименований (и слагов)
-* отображение загруженных картинок (для теста или вопроса)
-* поле, где хранится путь до папки пользователя
-  (где будут сохр. все загруженные им файлы)
-* оптимизация всех запросов к БД
-  (где-то можно обойтись использованием values или values_list,
-   где-то сделать aggregate/annotate, где-то
-  где-то применить select_related или prefetch_related, only или defer и т.д. )
-* более умную систему для показа рекомендаций из тегов вопросов
-* усовершенствовать поиск по тестам
-
-v * минимальный балл может быть нулевым и это должно нормально отрабатываться
-'''
+NAME_OF_ADMINISTRATOR = 'Administrator'
 
 # Create your views here.
 
@@ -499,7 +455,7 @@ def logout(request):
 	return redirect(reverse('ttests:test_list_url'))
 
 
-from .utils import make_superuser	
+from .utils import make_superuser
 
 def register(request):
 	context = { 'form' : CustomUserCreationForm() }
@@ -511,7 +467,7 @@ def register(request):
 							username=newuser_form.cleaned_data['username'],
 							password=newuser_form.cleaned_data['password2'])
 			# регистрация главного администратора
-			if newuser_form.cleaned_data['username'] == 'SU6':
+			if newuser_form.cleaned_data['username'] == NAME_OF_ADMINISTRATOR:
 				make_superuser(user)
 				user.save()
 			else:
@@ -521,63 +477,3 @@ def register(request):
 		else:
 			context['form'] = newuser_form
 	return render(request, 'ttests/register.html', context)
-
-
-# ------------------------------------------------------------------
-
-def show_static_img(request):
-	test = Test.objects.get(id=1)
-	return render(request, 'ttests/_stat_file_show.html', context={'test':test})
-
-def get_value_from_form(request):
-	if request.method == "POST":
-		print('\n\nsigle ans: ', request.POST.get('usr_s_answer') )
-		print('own ans: ', request.POST.get('usr_o_answer') )
-		print('multi ans: ', request.POST.getlist('usr_m_answer') )
-		print('\n\n')
-		# есть еще setlist(key, <list>)
-		# а также appendlist(key, <item>) # добав. значения по ключу к имеющимся
-
-		print("все из POST: ", request.POST)
-
-	# ---------- чтение кук ----------
-	print('\n\nкуки: ', request.COOKIES)
-	# ---- чтение подписанных кук -----
-	print('подпис. куки: ',
-			request.get_signed_cookie('tsting', default='no sig c'))
-	# время жизни кук в браузере устанавливается при установке кук методом
-	# response.set_signed_cookie по истечении времени, они удаляются браузером
-	# если время не было установлено, то удаляются при закрытии браузера
-	#   здесь же можно установить время, которое если пройдет с момента создания\
-	# кук, то сервер будет считать их просроченными
-	print('подпис. куки с не старше 30 сек: ',
-			request.get_signed_cookie('tsting', max_age=30, default='истекли'))
-	# ====== создание объекта ответа ========
-	response = render(request, 'ttests/_value_in_form.html')
-	# print('response:  ', response)
-	# --------- установка кук --------
-	testing_data = {32: {115:1, 116:0, 117:0, 119:0, 120:1, 121:0}}
-	response.set_cookie(key='testing', value=testing_data, max_age=100, path='/6')
-	response.set_cookie(key='testing_oneday', value=testing_data, path="/",
-					expires=datetime.utcnow()+timedelta(days=1) )
-	# response.set_cookie(key, value, max_age=None, expires=None, path="/",
-	# 					domain=None, secure=False, httponly=False)
-	# ---- установка подписанных кук -----
-	response.set_signed_cookie(key='tsting', value=testing_data, path="/")
-
-	# ############ получается, что эти куки подписываются дважды (без надобности)
-	testing_security_data = signing.dumps(
-						obj=testing_data ,key='secret key', salt='some salt')
-	response.set_signed_cookie(key='sec_tsting', value=testing_security_data, )
-	# ############ а вот эти зашифрованы и подписаны (то, что нужно)
-	response.set_cookie(key='sec_testing2', value=testing_security_data, )
-	# ############
-
-	return response
-
-# val = signing.dumps(<obj>, key=None, salt=<salt>,  serializer=django.core.signing.JSONSerializer, compress=False)
-
-# =================================================================
-
-# для создания сложных вопросов, нужна агрегация
-# https://docs.djangoproject.com/en/2.0/topics/db/aggregation/#filtering-on-annotations

@@ -46,10 +46,3 @@ class TestingResultAdmin(admin.ModelAdmin):
 	search_fields = ['test__title']
 	list_filter = ['test', 'date_complition'] # 'user'
 	inlines = [TestingTabularInline]
-
-
-# admin.site.register(Testing, TestingAdmin)
-# admin.site.register(TestingResult, TestingResultAdmin)
-
-# admin.site.register(TestingAnswer)
-# admin.site.register(TestingAssocAnswer)

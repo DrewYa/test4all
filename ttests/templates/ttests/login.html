@@ -1,9 +1,7 @@
 {% extends 'ttests/base.html' %}
 
 {% block content %}
-
-
-<div class="">
+<div>
 
 <div class="card mt-5 mb-3">
 <div class="card-header">
@@ -11,7 +9,7 @@
 </div>
 <div class="card-body align-self-center col-md-7 col-lg-6">
 	<div class="form-group ">
-	<!-- form-row  --><!-- .is-valid .is-invalid -->
+
 	{% for msg in messages %}
 	<div class="alert alert-{{ msg.tags }} mb-3" role="alert">
 		{{ msg }}
@@ -22,34 +20,20 @@
 
 	<form class="" action="" method="post">
 		{% csrf_token %}
-
 		<label class="form-control-label h6" for="UNorUE">Имя пользователя</label><br>
-		<input required class="form-control" type="text" name="usernameoremail" id="UNorUE">
-
-		<br>
-
+		<input required class="form-control" type="text" name="usernameoremail" id="UNorUE"><br>
 		<label class="form-control-label h6" for="UP">Пароль</label><br>
-		<!-- <div class="input-group mb-2">
-		<div class="input-group-prepend">
-			<div class="input-group-text">@</div>
-		</div> -->
-		<input required class="form-control" type="password" name="userpassword" id="UP">
-		<!-- </div> -->
-		<br>
-
+		<input required class="form-control" type="password" name="userpassword" id="UP"><br>
 		<input class="btn btn-block btn-outline-primary " type="submit" value="авторизоваться">
-
 	</form>
 	</div>
 </div>
 <div class="card-footer">
 	<p class="text-muted text-center">Еще нет аккаунта?
-		<a href="{% url 'ttests:register_url' %}">зарегистрируйтесь</a></p>
+		<a href="{% url 'ttests:register_url' %}">зарегистрируйтесь</a>
+	</p>
 </div>
 </div>
 
 </div>
-
-
-
 {% endblock %}

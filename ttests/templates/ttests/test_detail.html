@@ -1,12 +1,9 @@
 {% extends 'ttests/base.html' %}
 
 {% block content %}
-	{# {% include 'ttests/_card_of_test.html' %}  #}
-
-
 	<div class="card mt-1 mb-5" style="width: auto;">
 
-	  {% if test.img_description %}
+	{% if test.img_description %}
   	<img src="{{ test.img_description.url }}" class="card-img-top" alt="<картинка-описание для теста>">
   	{% endif %}
 
@@ -46,31 +43,18 @@
 	  </ul>
 	  {% if user.is_authenticated %}
 	  <div class="card-body">
-	    <!-- <a href="#" class="card-link btn btn-outline-primary">Пройти тест</a> -->
 		<p>
 		<form action="" method="post">
 			{% csrf_token %}
 			<input type="submit" value="Пройти тест"
 					class="card-link btn btn-outline-primary">
-
-			<!-- если тест уже проходил, то кнопка
-			"показать результаты последнего тестирования" -->
 			{% if is_exist_results %}
-			<a href="{% url 'ttests:test_results_url' id=test.id %}" class="card-link btn btn-outline-dark" style="float: right">результаты</a>
+			<a href="{% url 'ttests:test_results_url' id=test.id %}"
+			class="card-link btn btn-outline-dark" style="float: right">результаты</a>
 			{% endif %}
 		</form>
 		</p>
 	  </div>
 	  {% endif %}
 	</div>
-
 {% endblock %}
-
-
-{% comment %}
-так можно сделать цветную полоску (типа как цитата)
-https://webref.ru/css/border-left
-<div style="border-left: 3px solid red;">
-	<p class="p-3">sdfjsdl</p>
-</div>
-{% endcomment %}

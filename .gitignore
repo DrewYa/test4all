@@ -1,5 +1,5 @@
 db.sqlite3
-*/__pycache__
-*/*/__pycache__
+*__pycache__
 media/
 local_settings.py
+_for_del*

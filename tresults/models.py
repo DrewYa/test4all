@@ -52,7 +52,8 @@ class TestingAnswer(models.Model):
 	answer_text = models.TextField(null=True, blank=True)
 
 
-class TestingResult(models.Model):		# краткие результаты тестирования
+# краткие результаты тестирования
+class TestingResult(models.Model):
 	class Meta:
 		verbose_name = ' Результат тестирования'
 		verbose_name_plural = ' Результаты тестирования'
@@ -64,7 +65,7 @@ class TestingResult(models.Model):		# краткие результаты тес
 	test = models.ForeignKey(to='ttests.Test', on_delete=models.SET_NULL,
 				null=True, related_name='testing_results',
 				verbose_name='тест')
-	result = models.PositiveSmallIntegerField(verbose_name='итоговый балл') # 0 - 100 (%)
+	result = models.PositiveSmallIntegerField(verbose_name='итоговый балл') # 0 - 100
 	date_complition = models.DateTimeField(db_index=True,
 				verbose_name='завершение тестирования')
 	date_start = models.DateTimeField(db_index=True,

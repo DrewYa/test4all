@@ -1,9 +1,10 @@
-<div class="card text-center mb-5 mt-3 shadow-lg p-1 rounded"><!-- border-secondary -->
+<div class="card text-center mb-5 mt-3 shadow-lg p-1 rounded">
 	<div class="card-header">
 		{% if test.img_description %}
-		<img src="{{ test.img_description.url }}" class="card-img-top img-fluid" alt="<картинка-описание для теста>" style="height: auto; max-height: 300px; width: auto;">
+		<img src="{{ test.img_description.url }}" alt="<картинка-описание для теста>"
+		class="card-img-top img-fluid" style="height: auto; max-height: 300px; width: auto;">
 		{% endif %}
-		<h5 class="card-title mt-3 text-uppercase">{{ test.title }} </h5>
+		<h5 class="card-title mt-3 text-uppercase">{{ test.title }}</h5>
 	</div>
 	<div class="card-body">
 		{% if test.description %}

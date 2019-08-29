@@ -1,197 +1,88 @@
-<!DOCTYPE html>
-{% load staticfiles %}
-{% spaceless %}
-<html lang="ru">
-	<head>
+{% extends 'ttests/root_base.html' %}
 
-		<link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
-		<link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
-		<!-- <link rel="icon" href="" type="image/x-icon"> -->
+{% block nav %}
+<nav class="navbar navbar-light navbar-expand-md" style="background-color: #e3f2fd;">
+	<a class="navbar-brand" href="{% url 'ttests:test_list_url' %}">
+		<h2 style="color: #333; font-size: 1.75rem;">Test4all</h2>
+	</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse"
+	data-target="#navbarSupportedContent"
+	aria-controls="navbarSupportedContent"
+	aria-expanded="false"   aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
 
-		<meta charset="utf-8">
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8"> <!---->
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="author" content="Drew Krlv">
-		<meta name="application-name" content="test4all">
-		<meta name="generator" content="Jekyll v3.8.5">
-		{% block meta %}{% endblock %}
-		<title>Test4all {% block title %}{% if title %} - {{ title }}{% if user and user.username %} | пользователь {{ user.username }}{% endif %}{% endif %}
-		{% endblock %}</title>
-		<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
-		<!--  -->
-		<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+	<!-- begin nav items -->
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+			<a class="nav-link" href="{% url 'ttests:tag_list_url' %}">все&nbsp;теги</a>
+			</li>
+			{% if user and user.username and user.is_staff %}
+			<li class="nav-item mr-2">
+				<a class="nav-link " href="/admin/" tabindex="-1" aria-disabled="true">мои&nbsp;тесты</a>
+			</li>
+			{% endif %}
+		</ul>
 
-		<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
-		<!--  -->
-		<script type="text/javascript" src="{% static 'js/jquery-3.3.1.slim.min.js' %}"></script>
-
-		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> -->
-
-		<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
-		<!--  -->
-		<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
-
-		{% block header %}{% endblock %}
-
-	</head>
-	<body>
-
-		<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light"> -->
-		<!-- от navbar-expand-md зависит когда будет сворачиваться меню -->
-		<nav class="navbar navbar-light navbar-expand-md" style="background-color: #e3f2fd;">
-			<a class="navbar-brand" href="{% url 'ttests:test_list_url' %}"> <h1 style="color: #333; font-size: 1.75rem;">Test4all</h1> </a>
-
-<!-- <h1 style="color: #333; font-size: 1.75rem;">Test4all</h1> -->
-<!-- <img style="width: 57%" src="{% static 'logo_tedxt.png' %}" alt="Test4all"> -->
-
-			<!-- data-toggle=  collapse collapsing  collapse.show -->
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"   aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-<!-- begin nav items -->
-			<div class="collapse navbar-collapse" id="navbarSupportedContent"> <!-- class= "show" -->
-				<ul class="navbar-nav mr-auto">
-					<li class="nav-item"> <!-- class= active -->
-						<a class="nav-link" href="{% url 'ttests:tag_list_url' %}">все&nbsp;теги</span></a>
-					</li>
-<!--
-					<li class="nav-item">
-						<a class="nav-link" href="#">О сайте</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Авторы тестов</a>
-					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Dropdown
-						</a>
-						<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-							<a class="dropdown-item" href="#">Action</a>
-							<a class="dropdown-item" href="#">Another action</a>
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="#">Something else here</a>
-						</div>
-					</li>
--->
-					{% if user and user.username and user.is_staff %}
-					<li class="nav-item mr-2">
-						<a class="nav-link " href="/admin/" tabindex="-1" aria-disabled="true">мои&nbsp;тесты</a> <!-- class="disabled" -->
-					</li>
-					{% endif %}
-				</ul>
-
-				<!-- <form method='post' class="form-inline my-2 my-sm-2 mr-3"
-					action="/">
-					{% csrf_token %}
-					<input class="form-control mr-sm-2" type="search" placeholder="Поиск по тестам" aria-label="Search" name="search" size="42" tabindex="1">
-					<button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit" tabindex="2">найти</button>
-				</form> -->
-
-				<form method="post" class="form-inline my-2 my-sm-2 mr-3"
-					action="/" >
-					{% csrf_token %}
-					<div class="input-group">
-						<input class="form-control" type="search" placeholder="Поиск по тестам" aria-label="search" name="search" size="47" aria-describedby="btn-search">
-						<div class="input-group-append">
-						<button class="btn btn-outline-success" type="submit" id="btn-search" tabindex="2">найти</button>
-						</div>
-					</div>
-				</form>
-
-
-				{% if user and user.is_active %}
-				<div class="">
-					<a class="btn btn-outline-primary mt-2 mt-md-0"
-						href="{% url 'ttests:logout_url' %}"
-						title="пользователь: {{ user.username }}">выход</a>
-				</div>
-				{% else %}
-				<!-- <div class="">
-					<a class="btn btn-outline-primary mt-2 mt-md-0"
-						href="{% url 'ttests:login_url' %}">вход</a>
-				</div> -->
-				<button class="btn btn-outline-primary" data-toggle="collapse"
-						type="button" data-target="#loginEmbeded"
-					aria-expanded="false" aria-controls="collapseExample">
-				вход
-				</button>
-				{% endif %}
-
-			</div>
-		</nav>
-
-		{% if not user.is_active %}
-		<div class="collapse container mt-4 " id="loginEmbeded">
-			<form class="" action="{% url 'ttests:login_url' %}" method="post">
+		<form method="post" class="form-inline my-2 my-sm-2 mr-3"
+			action="/" >
 			{% csrf_token %}
-			<div class="form-row">
-
-			<div class="offset-md-2 col-md-3 mb-2">
-			<input class="form-control form-control-sm" type="text" id="UNorUE"
-					name="usernameoremail"  placeholder="имя пользователя">
+			<div class="input-group">
+				<input class="form-control" type="search" placeholder="Поиск по тестам" aria-label="search" name="search" size="47" aria-describedby="btn-search">
+				<div class="input-group-append">
+				<button class="btn btn-outline-success" type="submit" id="btn-search" tabindex="2">найти</button>
+				</div>
 			</div>
+		</form>
 
-			<div class="col-md-3 mb-2">
-			<input class="form-control form-control-sm" type="password" id="UP"
-					name="userpassword" placeholder="пароль">
-			</div>
-
-			<div class="col-md-3">
-			<input class="btn btn-sm btn-outline-primary" type="submit" value="войти">
-			<a class="btn-sm ml-2 float-right btn-outline-secondary link btn" href="{% url 'ttests:register_url' %}">регистрация</a>
-			</div>
-
-			</div>
-			</form>
-		<hr>
+		{% if user and user.is_active %}
+		<div class="">
+			<a class="btn btn-outline-primary mt-2 mt-md-0"
+				href="{% url 'ttests:logout_url' %}"
+				title="пользователь: {{ user.username }}">выход</a>
 		</div>
+		{% else %}
+		<!-- <div class="">
+			<a class="btn btn-outline-primary mt-2 mt-md-0"
+				href="{% url 'ttests:login_url' %}">вход</a>
+		</div> -->
+		<button class="btn btn-outline-primary" data-toggle="collapse"
+				type="button" data-target="#loginEmbeded"
+			aria-expanded="false" aria-controls="collapseExample">
+		вход
+		</button>
 		{% endif %}
+	</div>
+	<!-- end nav items -->
+</nav>
+{% endblock %}
 
+{% block optional %}
+{% if not user.is_active %}
+<div class="collapse container mt-4 " id="loginEmbeded">
+<form class="" action="{% url 'ttests:login_url' %}" method="post">
+	{% csrf_token %}
+	<div class="form-row">
 
+	<div class="offset-md-2 col-md-3 mb-2">
+	<input class="form-control form-control-sm" type="text"
+	id="UNorUE" name="usernameoremail"  placeholder="имя пользователя">
+	</div>
 
+	<div class="col-md-3 mb-2">
+	<input class="form-control form-control-sm" type="password" id="UP"
+	name="userpassword" placeholder="пароль">
+	</div>
 
-		<div class="container mt-3">
-			<div class="row">
-				<div class="col-10 offset-1">
-				{% block content %}
-					no content yet
-				{% endblock %}</div>
-			</div>
-		</div>
+	<div class="col-md-3">
+	<input class="btn btn-sm btn-outline-primary" type="submit" value="войти">
+	<a class="btn-sm ml-2 float-right btn-outline-secondary link btn"
+	href="{% url 'ttests:register_url' %}">регистрация</a>
+	</div>
 
-
-		{% block scripts %}
-		{% endblock %}
-
-
-	</body>
-</html>
-{% endspaceless %}
-
-{# {{ block.super }} #}
-
-<!--
-{% comment %}
-<div class="navbar navbar-dark bg-dark shadow-sm">
-    <div class="container d-flex justify-content-between">
-      <a href="#" class="navbar-brand d-flex align-items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true" class="mr-2" viewBox="0 0 24 24" focusable="false"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-        <strong>Album</strong>
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    </div>
-  </div>
-
-  <footer class="text-muted">
-    <div class="container">
-      <p class="float-right">
-        <a href="#">Back to top</a>
-      </p>
-      <p>Album example is © Bootstrap, but please download and customize it for yourself!</p>
-      <p>New to Bootstrap? <a href="https://getbootstrap.com/">Visit the homepage</a> or read our <a href="/docs/4.3/getting-started/introduction/">getting started guide</a>.</p>
-    </div>
-  </footer>
-{% endcomment %}
--->
+	</div>
+</form><hr>
+</div>
+{% endif %}
+{% endblock %}
